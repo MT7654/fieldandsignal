@@ -1,25 +1,62 @@
-import { AgentAvatar } from "@/components/agent-avatar";
-import { Badge, Button, SectionLabel } from "@/components/ui";
-import { agents } from "@/lib/demo-data";
-import { Check, MapPin, Radio, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { ArrowDownRight, ClipboardCheck, Eye, ShieldCheck } from "lucide-react";
+import { LandingCarousel } from "@/components/landing-carousel";
+import { Button, SectionLabel } from "@/components/ui";
 
 export default function Home() {
-  return <main>
-    <section className="hero">
-      <div className="hero-copy"><SectionLabel>Autonomous research firm</SectionLabel><h1>Market research that goes out and <em>asks the market.</em></h1><p>Meet the autonomous research team that investigates your business question, conducts fieldwork and delivers a decision-ready brief.</p><div className="hero-actions"><Button href="/projects/new">Start a research engagement</Button><Button href="/projects/northstar-cinemas/command-centre" variant="secondary">View sample engagement</Button></div></div>
-      <div className="hero-visual" aria-label="Sample engagement research signals"><div className="orbital" /><div className="hero-signal"><i/><i/><i/><i/></div><Float c="fc-1" n="6" t="AI specialists"/><Float c="fc-2" n="24" t="cited sources"/><Float c="fc-3" n="38" t="survey responses"/><Float c="fc-4" n="7" t="interviews completed"/></div>
-    </section>
+  return (
+    <main className="landing-page">
+      <section className="landing-hero">
+        <div className="landing-hero-copy">
+          <SectionLabel>Autonomous research firm</SectionLabel>
+          <h1>Market research that goes out and <em>asks the market.</em></h1>
+          <p>Meet the autonomous research team that investigates your business question, conducts fieldwork and delivers a decision-ready brief.</p>
+          <div className="hero-actions">
+            <Button href="/projects/new">Start a research engagement</Button>
+            <Button href="/projects/northstar-cinemas/command-centre" variant="secondary">View sample engagement</Button>
+          </div>
+          <div className="hero-proof">
+            <span><Eye size={15} /> Visible methods</span>
+            <span><ClipboardCheck size={15} /> Approval gates</span>
+            <span><ShieldCheck size={15} /> Traceable evidence</span>
+          </div>
+        </div>
+        <div className="landing-hero-image">
+          <Image
+            src="/fieldwork-team.webp"
+            alt="A fictional research consultancy team reviewing fieldwork observations together"
+            fill
+            priority
+            sizes="(max-width: 900px) 100vw, 44vw"
+          />
+          <div className="hero-image-caption">
+            <span>Field notes · evidence review</span>
+            <strong>Human research craft, delivered by AI specialists.</strong>
+          </div>
+        </div>
+        <a className="hero-scroll-cue" href="#how-it-works"><ArrowDownRight size={18} /> Meet the firm</a>
+      </section>
 
-    <section className="landing-section" id="team"><div className="section-head"><div><SectionLabel>The research team</SectionLabel><h2>Six specialists. One rigorous engagement.</h2></div><p>Each specialist is an AI agent operating within your approved research plan. Their role, progress and evidence trail remain visible from kickoff to recommendation.</p></div><div className="team-grid">{agents.map((a)=><article className="agent-card" key={a.slug} style={{"--agent":a.color} as React.CSSProperties}><div><AgentAvatar slug={a.slug} size="lg"/><Badge>AI Agent</Badge></div><h3>{a.name}</h3><span className="role">{a.role}</span><p>{a.bio}</p><footer><span>{a.expertise}</span><span>{a.status}</span></footer></article>)}</div></section>
+      <LandingCarousel />
 
-    <section className="landing-section dark"><div className="section-head"><div><SectionLabel>How the firm works</SectionLabel><h2>From a hard question to an evidence-backed decision.</h2></div><p>Work moves through deliberate gates. Nothing is published, fielded or spent without client approval.</p></div><div className="process-grid">{[["01","Frame the decision","John clarifies the choice, hypotheses, evidence needs and limits."],["02","Investigate evidence","Maya builds a cited picture of the market and identifies gaps."],["03","Conduct fieldwork","Aisha and Daniel design and run consent-based primary research."],["04","Recommend a strategy","Sofia and Marcus connect every conclusion back to evidence."]].map(x=><article className="process-card" key={x[0]}><b>{x[0]}</b><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
+      <section className="trust-section" aria-labelledby="trust-title">
+        <div className="trust-intro">
+          <SectionLabel>Built for responsible research</SectionLabel>
+          <h2 id="trust-title">Autonomous work. Human control.</h2>
+          <p>The team can investigate quickly, while publication, participant contact and consequential decisions stay behind explicit approval gates.</p>
+        </div>
+        <div className="trust-grid">
+          <article><span>01</span><h3>Approval before action</h3><p>Plans, fieldwork instruments and external spending remain under your control.</p></article>
+          <article><span>02</span><h3>Consent in the field</h3><p>Surveys and interviews identify the AI researcher and respect skip and stop requests.</p></article>
+          <article><span>03</span><h3>Evidence you can inspect</h3><p>Recommendations connect back to sources, responses and transcript excerpts.</p></article>
+        </div>
+      </section>
 
-    <section className="landing-section"><div className="section-head"><div><SectionLabel>Research modes</SectionLabel><h2>Right-sized for the decision.</h2></div><p>Start with published evidence or add original surveys and interviews when the unanswered question lives in the market.</p></div><div className="modes"><Mode badge="Focused" title="Secondary Research" items={["Published market evidence","Competitor and customer analysis","Cited strategic brief","Lower operational cost"]}/><Mode featured badge="Full engagement" title="Primary + Secondary" items={["Everything in secondary research","AI-generated surveys","Consent-based interviews","Integrated analysis"]}/></div></section>
-
-    <section className="landing-section"><div className="sample-panel"><div><Badge tone="coral">Demonstration engagement</Badge><h2>Where should Northstar Cinemas open next?</h2><p>See how six agents compare a heartland regional mall with a city-centre site—through evidence review, 38 demo survey responses and seven illustrative interviews.</p><Button href="/projects/northstar-cinemas/command-centre">Open full sample engagement</Button></div><div className="comparison"><div className="location-card winner"><MapPin size={20}/><strong>Heartland regional</strong><div className="score">78</div><p>Repeat visitation, family catchment and convenience</p><Badge>Preliminary lead</Badge></div><div className="location-card"><Radio size={20}/><strong>City centre</strong><div className="score">61</div><p>Premium positioning, occasion visits and tourists</p><Badge tone="gold">Higher variance</Badge></div></div></div></section>
-
-    <section className="landing-section dark" style={{textAlign:"center"}}><ShieldCheck size={38} style={{margin:"auto auto 22px",color:"var(--coral)"}}/><h2 style={{font:"500 clamp(48px,7vw,92px)/1 var(--font-serif)",maxWidth:900,margin:"0 auto 28px"}}>Your next research team is ready.</h2><Button href="/projects/new">Frame your business question</Button></section>
-  </main>;
+      <section className="landing-cta">
+        <p>Six specialists are ready to investigate your next decision.</p>
+        <h2>Your next research team is ready.</h2>
+        <Button href="/projects/new" variant="secondary">Frame your business question</Button>
+      </section>
+    </main>
+  );
 }
-function Float({c,n,t}:{c:string;n:string;t:string}){return <div className={`floating-card ${c}`}><strong>{n}</strong><span>{t}</span><small>Sample cinema engagement</small></div>}
-function Mode({badge,title,items,featured=false}:{badge:string;title:string;items:string[];featured?:boolean}){return <article className={`mode-card ${featured?"featured":""}`}><Badge tone={featured?"coral":"default"}>{badge}</Badge><h3>{title}</h3><ul>{items.map(i=><li key={i}><Check size={17}/>{i}</li>)}</ul><Button href="/projects/new" variant={featured?"secondary":"primary"}>Start this mode</Button></article>}

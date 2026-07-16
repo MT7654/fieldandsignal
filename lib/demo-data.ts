@@ -1,12 +1,12 @@
 import type { Activity, Agent, Source, SurveyQuestion } from "./types";
 
 export const agents: Agent[] = [
-  { slug: "john-lim", name: "John Lim", role: "Research Director", initials: "JL", color: "#0E766E", expertise: "Decision framing & orchestration", bio: "Turns an ambiguous business question into a rigorous, approval-ready research programme.", status: "Coordinating synthesis" },
-  { slug: "maya-chen", name: "Maya Chen", role: "Secondary Research Analyst", initials: "MC", color: "#477B9D", expertise: "Markets, competitors & evidence", bio: "Builds a cited view of markets, customer behaviour, competitors and locations.", status: "Source review complete" },
-  { slug: "aisha-rahman", name: "Aisha Rahman", role: "Research Methodologist", initials: "AR", color: "#C39B3B", expertise: "Study design & sampling", bio: "Designs surveys and interview programmes that answer the decision—not just generate data.", status: "Survey live" },
-  { slug: "daniel-wong", name: "Daniel Wong", role: "Fieldwork Lead", initials: "DW", color: "#E9785D", expertise: "Recruitment & interviewing", bio: "Runs consent-based fieldwork and adapts interviews within the approved guide.", status: "5 of 7 interviews" },
-  { slug: "sofia-tan", name: "Sofia Tan", role: "Insights Analyst", initials: "ST", color: "#76658D", expertise: "Quantitative & qualitative analysis", bio: "Finds patterns, contradictions and segment differences without overstating the evidence.", status: "Analysis in progress" },
-  { slug: "marcus-lee", name: "Marcus Lee", role: "Strategy Consultant", initials: "ML", color: "#557A5D", expertise: "Strategy & recommendations", bio: "Converts the evidence into a practical recommendation, risks and next decisions.", status: "Brief queued" },
+  { slug: "john-lim", name: "John Lim", role: "Research Director", initials: "JL", color: "#0E766E", portrait: "/agents/john-lim.webp", expertise: "Decision framing & orchestration", bio: "Turns an ambiguous business question into a rigorous, approval-ready research programme.", status: "Coordinating synthesis" },
+  { slug: "maya-chen", name: "Maya Chen", role: "Secondary Research Analyst", initials: "MC", color: "#477B9D", portrait: "/agents/maya-chen.webp", expertise: "Markets, competitors & evidence", bio: "Builds a cited view of markets, customer behaviour, competitors and locations.", status: "Source review complete" },
+  { slug: "aisha-rahman", name: "Aisha Rahman", role: "Research Methodologist", initials: "AR", color: "#C39B3B", portrait: "/agents/aisha-rahman.webp", expertise: "Study design & sampling", bio: "Designs surveys and interview programmes that answer the decision—not just generate data.", status: "Survey live" },
+  { slug: "daniel-wong", name: "Daniel Wong", role: "Fieldwork Lead", initials: "DW", color: "#E9785D", portrait: "/agents/daniel-wong.webp", expertise: "Recruitment & interviewing", bio: "Runs consent-based fieldwork and adapts interviews within the approved guide.", status: "5 of 7 interviews" },
+  { slug: "sofia-tan", name: "Sofia Tan", role: "Insights Analyst", initials: "ST", color: "#76658D", portrait: "/agents/sofia-tan.webp", expertise: "Quantitative & qualitative analysis", bio: "Finds patterns, contradictions and segment differences without overstating the evidence.", status: "Analysis in progress" },
+  { slug: "marcus-lee", name: "Marcus Lee", role: "Strategy Consultant", initials: "ML", color: "#557A5D", portrait: "/agents/marcus-lee.webp", expertise: "Strategy & recommendations", bio: "Converts the evidence into a practical recommendation, risks and next decisions.", status: "Brief queued" },
 ];
 
 export const sampleProject = {
