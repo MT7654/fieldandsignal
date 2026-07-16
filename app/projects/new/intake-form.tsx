@@ -123,6 +123,7 @@ function Consultation({ questions, loading, error, onComplete }: { questions: st
     <div>
       <Badge>Step 3 · Live AI consultation</Badge>
       <h2 style={{ font: "500 34px var(--font-serif)", marginTop: 18 }}>A few questions from John</h2>
+      <p className="consultation-guidance"><strong>You do not need to know every answer.</strong> Estimates and “I don’t know” are useful—John will turn uncertainty into an evidence gap for the research team.</p>
       {error && <div className="notice">{error}</div>}
       {questions.map((question, index) => (
         <div className="field" key={question} style={{ marginTop: 18 }}>
