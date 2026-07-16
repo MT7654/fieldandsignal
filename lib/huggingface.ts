@@ -16,7 +16,7 @@ export async function hfChat(messages:Message[],options?:{maxTokens?:number;temp
 export async function hfStructured<T>(system:string,input:unknown,schema:ZodType<T>,schemaDescription:string){
   const prompt=`Return only one valid JSON object. No markdown or commentary. JSON contract: ${schemaDescription}\nInput: ${JSON.stringify(input)}`;
   let lastError:unknown;
-  for(let attempt=0;attempt<2;attempt++){try{return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:attempt===0?prompt:`${prompt}\nYour previous response was invalid. Produce smaller, strictly valid JSON.`}],{maxTokens:1100,temperature:0.1})))}catch(error){lastError=error}}
+  for(let attempt=0;attempt<2;attempt++){try{const correction=lastError instanceof Error?`\nPrevious validation error: ${lastError.message}`:"";return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:attempt===0?prompt:`${prompt}${correction}\nCorrect the reported field types and produce smaller, strictly valid JSON.`}],{maxTokens:1100,temperature:0.1})))}catch(error){lastError=error}}
   throw new Error(`The model did not return valid structured output: ${lastError instanceof Error?lastError.message:"unknown error"}`);
 }
 
