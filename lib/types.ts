@@ -1,6 +1,6 @@
 export type Agent = {
   slug: string; name: string; role: string; initials: string; color: string;
-  expertise: string; bio: string; status: string;
+  expertise: string; bio: string; status: string; portrait: string;
 };
 
 export type Activity = {
