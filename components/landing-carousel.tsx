@@ -149,7 +149,7 @@ function TeamSlide() {
 const firmSteps = [
   ["01", "Frame the decision", "John clarifies the choice, assumptions and evidence needed."],
   ["02", "Investigate evidence", "Maya maps the market and identifies what published evidence cannot answer."],
-  ["03", "Conduct fieldwork", "Aisha and Daniel design and run approved, consent-based primary research."],
+  ["03", "Conduct fieldwork", "Aisha publishes a shareable survey; Daniel guides consented voice interviews in the room."],
   ["04", "Recommend a strategy", "Sofia and Marcus connect findings to a practical decision and its risks."],
 ];
 
@@ -174,8 +174,8 @@ const appSteps = [
   { icon: MessageSquareText, title: "Describe the decision", text: "Start with the business choice, context and market." },
   { icon: Search, title: "Clarify the question", text: "John surfaces assumptions, constraints and unknowns." },
   { icon: ClipboardList, title: "Approve the plan", text: "Review the methods, sample, timeline and limits." },
-  { icon: Sparkles, title: "Watch the work", text: "Follow evidence review, surveys, interviews and analysis." },
-  { icon: FileCheck2, title: "Receive the brief", text: "Get a recommendation with linked evidence and risks." },
+  { icon: Sparkles, title: "Take it to the field", text: "Share the survey and bring Daniel’s voice interview into participant conversations." },
+  { icon: FileCheck2, title: "Receive the brief", text: "Sofia and Marcus turn actual responses and sources into a traceable recommendation." },
 ];
 
 function AppSlide() {

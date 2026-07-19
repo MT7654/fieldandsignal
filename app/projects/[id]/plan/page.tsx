@@ -20,7 +20,7 @@ const demoPlan: ResearchPlan = {
   primaryMethodology: "Consumer survey and seven semi-structured, consent-based browser interviews.",
   primaryRationale: "Published data can size the opportunity, but only direct customer research can explain trade-offs, willingness to travel and the reasons behind location preference.",
   targetRespondents: "Recent cinema-goers aged 18+, weighted toward candidate catchments.",
-  sampleSizeRecommendation: "n=150 for directional segment analysis; demo contains n=38.",
+  sampleSizeRecommendation: "n=150 for directional segment analysis; the sample workspace uses a clearly labelled synthetic n=48 preview until live responses arrive.",
   timeline: "Fourteen working days",
   estimatedOperationalCosts: "Illustrative S$3,000 total for primary and secondary research.",
   costBreakdown: fallbackCostBreakdown,

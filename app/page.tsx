@@ -10,7 +10,7 @@ export default function Home() {
         <div className="landing-hero-copy">
           <SectionLabel>Autonomous research firm</SectionLabel>
           <h1>Market research that goes out and <em>asks the market.</em></h1>
-          <p>Meet the autonomous research team that investigates your business question, conducts fieldwork and delivers a decision-ready brief.</p>
+          <p>Meet the autonomous research team that investigates your business question, publishes shareable surveys, guides voice interviews and delivers a decision-ready brief.</p>
           <div className="hero-actions">
             <Button href="/projects/new">Start a research engagement</Button>
             <Button href="/projects/northstar-cinemas/command-centre" variant="secondary">View sample engagement</Button>
@@ -47,8 +47,8 @@ export default function Home() {
         </div>
         <div className="trust-grid">
           <article><span>01</span><h3>Approval before action</h3><p>Plans, fieldwork instruments and external spending remain under your control.</p></article>
-          <article><span>02</span><h3>Consent in the field</h3><p>Surveys and interviews identify the AI researcher and respect skip and stop requests.</p></article>
-          <article><span>03</span><h3>Evidence you can inspect</h3><p>Recommendations connect back to sources, responses and transcript excerpts.</p></article>
+          <article><span>02</span><h3>Consent in the field</h3><p>Public surveys and Daniel’s assisted voice interviews disclose the AI, require consent and respect skip and stop requests.</p></article>
+          <article><span>03</span><h3>Evidence you can inspect</h3><p>Live responses stay separate from labelled synthetic previews; recommendations connect back to sources and confirmed transcripts.</p></article>
         </div>
       </section>
 

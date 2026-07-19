@@ -3,8 +3,8 @@ import type { Activity, Agent, Source, SurveyQuestion } from "./types";
 export const agents: Agent[] = [
   { slug: "john-lim", name: "John Lim", role: "Research Director", initials: "JL", color: "#0E766E", portrait: "/agents/john-lim.webp", expertise: "Decision framing & orchestration", bio: "Turns an ambiguous business question into a rigorous, approval-ready research programme.", status: "Coordinating synthesis" },
   { slug: "maya-chen", name: "Maya Chen", role: "Secondary Research Analyst", initials: "MC", color: "#477B9D", portrait: "/agents/maya-chen.webp", expertise: "Markets, competitors & evidence", bio: "Builds a cited view of markets, customer behaviour, competitors and locations.", status: "Source review complete" },
-  { slug: "aisha-rahman", name: "Aisha Rahman", role: "Research Methodologist", initials: "AR", color: "#C39B3B", portrait: "/agents/aisha-rahman.webp", expertise: "Study design & sampling", bio: "Designs surveys and interview programmes that answer the decision—not just generate data.", status: "Survey live" },
-  { slug: "daniel-wong", name: "Daniel Wong", role: "Fieldwork Lead", initials: "DW", color: "#E9785D", portrait: "/agents/daniel-wong.webp", expertise: "Recruitment & interviewing", bio: "Runs consent-based fieldwork and adapts interviews within the approved guide.", status: "5 of 7 interviews" },
+  { slug: "aisha-rahman", name: "Aisha Rahman", role: "Research Methodologist", initials: "AR", color: "#C39B3B", portrait: "/agents/aisha-rahman.webp", expertise: "Study design & sampling", bio: "Designs shareable surveys and interview programmes that answer the decision—not just generate data.", status: "Survey ready to share" },
+  { slug: "daniel-wong", name: "Daniel Wong", role: "Fieldwork Lead", initials: "DW", color: "#E9785D", portrait: "/agents/daniel-wong.webp", expertise: "Assisted voice interviewing", bio: "Joins client-led interviews, speaks approved questions and adapts within the guide after consent.", status: "Practice room ready" },
   { slug: "sofia-tan", name: "Sofia Tan", role: "Insights Analyst", initials: "ST", color: "#76658D", portrait: "/agents/sofia-tan.webp", expertise: "Quantitative & qualitative analysis", bio: "Finds patterns, contradictions and segment differences without overstating the evidence.", status: "Analysis in progress" },
   { slug: "marcus-lee", name: "Marcus Lee", role: "Strategy Consultant", initials: "ML", color: "#557A5D", portrait: "/agents/marcus-lee.webp", expertise: "Strategy & recommendations", bio: "Converts the evidence into a practical recommendation, risks and next decisions.", status: "Brief queued" },
 ];
@@ -12,12 +12,12 @@ export const agents: Agent[] = [
 export const sampleProject = {
   id: "northstar-cinemas", title: "Northstar Cinemas expansion", client: "Northstar Cinemas",
   question: "Should Northstar Cinemas open its next outlet in a heartland mall or a city-centre mall?",
-  status: "Analysis in progress", phase: "Integrated analysis", progress: 78, mode: "Primary + secondary research",
+  status: "Evidence review ready", phase: "Fieldwork setup", progress: 72, mode: "Primary + secondary research",
 };
 
 export const activities: Activity[] = [
-  { agent: "sofia-tan", action: "Identified a meaningful difference between family and young-adult respondents.", time: "Today, 10:42", status: "In progress", href: "/projects/northstar-cinemas/analysis" },
-  { agent: "daniel-wong", action: "Completed interview 5 of 7 and stored the consented transcript.", time: "Today, 09:18", status: "Complete", href: "/projects/northstar-cinemas/interviews" },
+  { agent: "sofia-tan", action: "Prepared an integrated view using retained sources and a labelled synthetic survey preview.", time: "Today, 10:42", status: "Complete", href: "/projects/northstar-cinemas/analysis" },
+  { agent: "daniel-wong", action: "Opened a practice voice-interview room; practice content is excluded from evidence.", time: "Today, 09:18", status: "Complete", href: "/projects/northstar-cinemas/interviews" },
   { agent: "maya-chen", action: "Reviewed regional population, accessibility and cinema supply evidence.", time: "Yesterday, 16:05", status: "Complete", href: "/projects/northstar-cinemas/secondary-research" },
   { agent: "aisha-rahman", action: "Drafted and published a 12-question consumer survey after approval.", time: "12 Jul, 14:20", status: "Complete", href: "/projects/northstar-cinemas/survey" },
   { agent: "john-lim", action: "Submitted the research plan for client approval.", time: "10 Jul, 11:34", status: "Complete", href: "/projects/northstar-cinemas/plan" },
@@ -44,7 +44,7 @@ export const surveyResults = [
 ];
 
 export const findings = [
-  { title: "Convenience drives repeat visits", type: "Observed evidence", confidence: "High", text: "29 of 38 demo respondents ranked travel time among their top two cinema-choice factors.", evidence: "Survey Q2 · n=38" },
-  { title: "Families lean heartland", type: "Strategic inference", confidence: "Medium", text: "Parents in the demo sample preferred regional malls for bundled dining, errands and shorter journeys.", evidence: "Survey segment FAM · Interviews I02, I04" },
-  { title: "Central sites signal premium", type: "Respondent statement", confidence: "Medium", text: "Younger respondents associated city-centre cinemas with dates, events and premium formats.", evidence: "Interviews I01, I05 · Survey Q4" },
+  { title: "Convenience is decision-relevant", type: "Published evidence", confidence: "Medium", text: "Retained sources consistently make access and trip convenience relevant to repeat visitation, without proving site-level revenue.", evidence: "Sources S01, S04, S06" },
+  { title: "Primary preference remains unverified", type: "Evidence gap", confidence: "Directional", text: "The survey distribution is a synthetic interface preview. It is not customer evidence and will be replaced when a real response arrives.", evidence: "Synthetic survey preview · n=48" },
+  { title: "Interview explanations are still missing", type: "Evidence gap", confidence: "Directional", text: "No synthetic interview transcripts are used. Daniel’s practice room demonstrates the experience but stays outside the analysis.", evidence: "No completed research interviews" },
 ];

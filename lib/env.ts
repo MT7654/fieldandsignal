@@ -3,6 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   OPENAI_API_KEY: z.string().min(1).optional(),
   OPENAI_MODEL: z.string().default("gpt-5.6-luna"),
+  OPENAI_TRANSCRIBE_MODEL: z.string().default("gpt-4o-mini-transcribe"),
   HF_TOKEN: z.string().startsWith("hf_").optional(),
   HF_MODEL: z.string().default("Qwen/Qwen3.6-35B-A3B:featherless-ai"),
   OXYLABS_USERNAME: z.string().min(1).optional(),
@@ -17,6 +18,7 @@ const envSchema = z.object({
 export const env = envSchema.parse({
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL,
+  OPENAI_TRANSCRIBE_MODEL: process.env.OPENAI_TRANSCRIBE_MODEL,
   HF_TOKEN: process.env.HF_TOKEN,
   HF_MODEL: process.env.HF_MODEL,
   OXYLABS_USERNAME: process.env.OXYLABS_USERNAME,

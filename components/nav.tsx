@@ -6,7 +6,7 @@ import { Logo } from "./logo";
 
 export function Nav() {
   const path = usePathname();
-  const project = path.startsWith("/projects/northstar-cinemas");
+  const projectId = path.match(/^\/projects\/([^/]+)\//)?.[1];
   return <>
     <header className="topbar">
       <Logo />
@@ -18,14 +18,15 @@ export function Nav() {
       </nav>
       <Link className="nav-cta" href="/projects/new"><Plus size={16} /> New engagement</Link>
     </header>
-    {project && <ProjectNav />}
+    {projectId && projectId !== "new" && <ProjectNav projectId={projectId} />}
   </>;
 }
 
-function ProjectNav() {
+function ProjectNav({ projectId }: { projectId: string }) {
   const pathname = usePathname();
   const items = [
     ["Command centre", "command-centre"], ["Plan", "plan"], ["Evidence", "secondary-research"], ["Survey", "survey"], ["Interviews", "interviews"], ["Analysis", "analysis"], ["Brief", "brief"],
   ];
-  return <div className="project-nav"><div><FlaskConical size={16} /><strong>Northstar Cinemas</strong><span className="demo-dot">Demo</span></div><nav>{items.map(([label, slug]) => <Link key={slug} className={pathname.endsWith(slug) ? "active" : ""} href={`/projects/northstar-cinemas/${slug}`}>{label}</Link>)}</nav><Link href="/dashboard" aria-label="Dashboard"><LayoutDashboard size={17} /></Link></div>;
+  const sample = projectId === "northstar-cinemas";
+  return <div className="project-nav"><div><FlaskConical size={16} /><strong>{sample ? "Northstar Cinemas" : "Live engagement"}</strong>{sample && <span className="demo-dot">Sample</span>}</div><nav>{items.map(([label, slug]) => <Link key={slug} className={pathname.endsWith(slug) ? "active" : ""} href={`/projects/${projectId}/${slug}`}>{label}</Link>)}</nav><Link href="/dashboard" aria-label="Dashboard"><LayoutDashboard size={17} /></Link></div>;
 }
