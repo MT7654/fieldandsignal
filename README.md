@@ -9,6 +9,20 @@ Field & Signal is an AI-native market-research agency built for OpenAI Build Wee
 
 The core product thesis is simple: conventional AI research tools search what is already known; Field & Signal can also create a survey and go out and ask the market.
 
+## Submission facts
+
+| Requirement | Field & Signal submission |
+|---|---|
+| **Track** | Work & Productivity |
+| **Platform** | Public browser-based web application, responsive across desktop and mobile |
+| **Judge access** | No login, payment, proprietary hardware, or local installation is required to use the deployed application |
+| **Testing options** | Judges can follow the deterministic sample engagement without consuming model credits or start a live GPT‑5.6 research engagement |
+| **Availability** | The production deployment is provided free of charge and is intended to remain publicly accessible throughout the judging period |
+| **Original work** | The Field & Signal branding, interface, application code, logo, and synthetic specialist portraits were created for this project |
+| **Third parties** | OpenAI, Supabase, Vercel, and optional fallback services are accessed through authorized project accounts; distributed open-source dependencies remain subject to their respective licences |
+
+The submitted platform is the hosted web application at [fieldandsignal.vercel.app](https://fieldandsignal.vercel.app). The public GitHub repository remains the authoritative source for installation, testing, architecture, provenance, and licensing information.
+
 ## Built with ChatGPT, Codex, and GPT‑5.6
 
 ChatGPT, Codex, and GPT‑5.6 were each central to the project, but served different and complementary roles:
