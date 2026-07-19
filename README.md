@@ -3,11 +3,25 @@
 > **Market research that goes out and asks the market.**
 > Meet the autonomous research team that investigates your business question, conducts fieldwork and delivers a decision-ready brief.
 
-[Live application](https://fieldandsignal.vercel.app) · [Judge and AI-evaluator guide](./JUDGING_GUIDE.md) · [Sub-three-minute demo script](./DEMO_SCRIPT.md) · [MIT licence](./LICENSE)
+[Live application](https://fieldandsignal.vercel.app) · [Judge and AI-evaluator guide](./JUDGING_GUIDE.md) · [MIT licence](./LICENSE)
 
 Field & Signal is an AI-native market-research agency built for OpenAI Build Week. A client provides a business decision—not a research methodology—and six visible AI specialists frame the question, propose an approval-gated plan, gather public evidence, design and publish primary research, conduct consent-based interviews, integrate the evidence, and prepare a traceable strategic brief.
 
 The core product thesis is simple: conventional AI research tools search what is already known; Field & Signal can also create a survey and go out and ask the market.
+
+## Built with ChatGPT, Codex, and GPT‑5.6
+
+ChatGPT, Codex, and GPT‑5.6 were each central to the project, but served different and complementary roles:
+
+| OpenAI system | Role in Field & Signal | Concrete contribution |
+|---|---|---|
+| **ChatGPT** | Product ideation partner before implementation | Helped pressure-test the original “multi-agent research team” idea, distinguish an AI-native research agency from a generic research assistant, identify primary fieldwork as the differentiator, select the Work & Productivity track, define the P0/P1 backlog, shape the visible AI-specialist concept, and arrive at the Field & Signal name and positioning. |
+| **Codex** | Primary engineering and design collaborator during Build Week | Inspected and edited the repository, implemented the full-stack application, generated the original specialist portraits and logo assets, translated product critiques into UI and workflow changes, diagnosed model and database failures, wrote tests and documentation, ran production builds, managed feature branches and pull requests, and repeatedly deployed verified iterations to Vercel. |
+| **GPT‑5.6** | Runtime intelligence inside the product | Powers the six bounded research roles: John’s consultation and planning, Maya’s web research and synthesis, Aisha’s primary-research instruments, Daniel’s adaptive interview, Sofia’s integrated analysis, and Marcus’s evidence-linked brief. |
+
+This separation matters. ChatGPT helped decide **what should be built**; the builder and Codex collaborated on **how to make it real and reliable**; GPT‑5.6 performs **the research work experienced by the end user**.
+
+The application was not produced by a single one-shot prompt. It emerged through a sustained Codex task containing product direction, screenshot-based critique, implementation, debugging, verification, GitHub publication, and production deployment. The exact task identifier is recorded below so evaluators can inspect the collaboration evidence supplied through `/feedback`.
 
 ## Build Week eligibility and provenance
 
@@ -19,7 +33,7 @@ This repository and its implementation were created after 13 July 2026.
 | First commit | **16 Jul 2026, 06:55:09 SGT** | `8e57edb` — “Initial Field & Signal application” |
 | Current implementation period | **16–20 Jul 2026** | 42 implementation commits preceded this documentation update |
 
-Product ideation began in a separate ChatGPT conversation, while the application architecture, implementation, testing, iteration, Git workflow, and deployment were completed in Codex during the Build Week submission period. The repository history provides a dated record of this work through focused feature branches and pull requests.
+Product ideation began in a separate ChatGPT conversation. That conversation established the market-research-agency thesis, autonomous primary-research direction, Build Week category, prioritized backlog, visible agent-team presentation, and initial implementation brief. The application architecture, implementation, testing, iteration, Git workflow, and deployment were then completed with Codex during the Build Week submission period. The repository history provides a dated record of this work through focused feature branches and pull requests.
 
 The repository is public at [github.com/MT7654/fieldandsignal](https://github.com/MT7654/fieldandsignal) and is distributed under the [MIT licence](./LICENSE).
 
@@ -141,7 +155,37 @@ Role-specific prompts live in [`lib/agents.ts`](./lib/agents.ts), while schemas 
 
 ## How Codex and the builder collaborated
 
-The collaboration was iterative rather than a single “build this app” prompt. The builder supplied the product vision, business logic, research-agency expectations, test scenarios, visual critique, and priorities. Codex translated those decisions into working software, verified each iteration, and maintained the deployment workflow.
+The collaboration was iterative rather than a single “build this app” prompt. The builder supplied the product vision, business logic, research-agency expectations, test scenarios, visual critique, credentials through local environment variables, and priorities. Codex translated those decisions into working software, verified each iteration, and maintained the deployment workflow.
+
+### How ChatGPT shaped the project before coding
+
+The separate ChatGPT ideation conversation was the product-strategy starting point. It helped the builder:
+
+- reject a shallow “multiple agents discussing a prompt” concept in favor of agents that perform operational research work;
+- identify primary research—hosted surveys and adaptive interviews—as the product’s defining advantage over ordinary web-research tools;
+- frame the product as an **AI-native market-research agency** rather than an evidence checker or chatbot;
+- select **Work & Productivity** as the Build Week track;
+- define approval gates around publication, interviews, participant consent, outreach, and spending;
+- scope a credible hackathon MVP that demonstrates a complete research loop without pretending to autonomously recruit or cold-call respondents;
+- produce the P0/P1 backlog, route map, data-model outline, agent responsibilities, and original master build brief;
+- develop the human-like but clearly disclosed AI-specialist presentation; and
+- choose the **Field & Signal** name, representing primary fieldwork and market signals.
+
+Those outputs were treated as product input, not finished software. Codex then worked inside the actual repository to implement, test, refine, and deploy the product.
+
+### How the Codex build unfolded
+
+The core Codex task became the project’s continuous engineering workspace:
+
+1. **Foundation:** Codex inspected the initial scope, established the Next.js application structure, visual language, reusable components, agent roster, local assets, and first production-ready routes.
+2. **Persistence and orchestration:** Codex integrated Supabase through server-side clients and migrations, added research-session scoping, and created distinct prompts, schemas, task boundaries, and handoffs for the six agents.
+3. **Model integration:** Codex first made the workflow functional through a Hugging Face-compatible inference path, then migrated the primary runtime to the OpenAI Responses API and configurable GPT‑5.6 model.
+4. **Real research operations:** Codex replaced hardwired secondary research with live discovery and deterministic extraction, implemented hosted survey collection, added consent-based adaptive interviews, persisted transcripts and responses, and connected them to analysis and brief generation.
+5. **Failure-driven hardening:** The builder stress-tested the app with unknown answers, malformed model JSON, unexpected array shapes, overlong question sets, slow inference, irrelevant search results, and rotated credentials. Codex diagnosed each failure and added normalization, validation, retries, caps, relevance controls, progress states, and clearer errors.
+6. **Design iteration:** The builder supplied screenshots and client-perspective feedback. Codex repeatedly corrected typography, spacing, card elevation, contrast, avatar treatment, carousel behavior, responsive layouts, information hierarchy, CTA placement, and agent-specific progress experiences.
+7. **Release discipline:** Codex ran type checks, lint, tests, and production builds; created scoped branches and pull requests; merged verified changes; monitored Vercel deployments; and inspected the deployed application in the browser after material changes.
+
+This is why the contribution of Codex is visible not only in source code, but in the repository’s commit and pull-request history: the application was built as a product-development conversation with a live engineering loop.
 
 ### Decisions made by the builder
 
@@ -171,6 +215,30 @@ The collaboration was iterative rather than a single “build this app” prompt
 - Added and maintained automated tests, type checks, linting, production builds, Git branches, pull requests, merges, and Vercel deployments.
 - Helped audit credential handling without displaying secret values.
 
+### Examples of builder feedback converted directly into code by Codex
+
+- “Clients may not know the answer” became consultation prompts that explicitly accept uncertainty and convert it into research gaps.
+- “Approve plan does nothing” became a real phase transition into Maya’s secondary-research workflow.
+- “Request revision should be separate” became a repeatable, structured revision flow with cost-oriented templates and approval nudges.
+- “The search results are irrelevant” became research-query refinement, relevance scoring, source caps, safe extraction, and source-bounded synthesis.
+- “Survey and interview pages are demos” became hosted public links, Supabase-persisted responses, consent records, transcripts, and downstream evidence integration.
+- “Do not use dummy data after a real response arrives” became a server-enforced evidence rule used by Sofia’s analysis.
+- “The model looks stuck” became consistent agent-specific loading and elapsed-time states across consultation, research, instrument generation, analysis, and brief creation.
+- “The UI is hard to read” became a shared typography and color system, responsive card layouts, larger controls, clearer badges, and mobile-specific corrections.
+
+### Codex verification and release responsibilities
+
+Codex did more than generate implementation code. For material iterations it also:
+
+- inspected the working tree before editing and preserved unrelated changes;
+- validated structured model contracts with Zod and tests;
+- ran strict TypeScript checks and zero-warning ESLint;
+- ran the Vitest suite and production Next.js build;
+- reviewed deployed pages through the browser rather than relying only on local compilation;
+- checked public GitHub visibility and repository metadata for Build Week eligibility;
+- maintained the README and `JUDGING_GUIDE.md` for both human and agentic evaluation; and
+- recorded the Codex Session ID used for the core build.
+
 ### Representative iteration history
 
 The Git history makes the collaboration inspectable. Examples include:
@@ -188,7 +256,7 @@ The Git history makes the collaboration inspectable. Examples include:
 - consistent progress states; and
 - faster, coverage-aware Maya research.
 
-Codex did not choose the product strategy autonomously. The builder continuously reviewed the product from the perspective of a market-research client and made the consequential product and methodology decisions; Codex made those decisions executable, testable, and deployable.
+Codex did not choose the product strategy autonomously. ChatGPT helped the builder develop the initial thesis, and the builder continuously reviewed the resulting application from the perspective of a market-research client. The builder made the consequential product and methodology decisions; Codex challenged implementation assumptions where necessary and made those decisions executable, testable, and deployable. GPT‑5.6 then became part of the shipped product itself, carrying out the bounded research tasks encoded through that collaboration.
 
 ## Technical architecture
 
