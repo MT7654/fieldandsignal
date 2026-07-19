@@ -76,6 +76,9 @@ export function IntakeForm({ initialMode = "primary_secondary" }: { initialMode?
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       localStorage.setItem("field-signal-live-plan", JSON.stringify(result.plan));
+      localStorage.setItem("field-signal-live-project", JSON.stringify(project));
+      localStorage.setItem("field-signal-live-revision-count", "0");
+      localStorage.removeItem("field-signal-live-plan-approved");
       router.push("/projects/live/plan");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Plan generation failed");
