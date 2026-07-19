@@ -1,6 +1,6 @@
 import type { ResearchPlan } from "./research-plan";
 
-export const SECONDARY_RESEARCH_LIMITS = { queries: 4, pageFetches: 18, sources: 10 } as const;
+export const SECONDARY_RESEARCH_LIMITS = { queries: 3, pageFetches: 12, sources: 6 } as const;
 
 export type ResearchQuery = {
   query: string;

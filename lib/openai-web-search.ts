@@ -14,7 +14,7 @@ const sourceDiscoverySchema = z.object({
     evidence: z.string(),
     publisher: z.string(),
     publicationDate: z.string().nullable(),
-  })).min(3).max(6),
+  })).min(2).max(4),
 });
 
 export async function searchPublishedSources(query: string, workstream: string, expectedEvidence: string[], geographyTerms: string[], topicTerms: string[]) {
@@ -26,7 +26,7 @@ export async function searchPublishedSources(query: string, workstream: string, 
         input: query,
         tools: [{ type: "web_search", search_context_size: "low", user_location: { type: "approximate", country: "SG", city: "Singapore", region: "Singapore", timezone: "Asia/Singapore" } }],
         tool_choice: "required",
-        max_output_tokens: 1800,
+        max_output_tokens: 1200,
         reasoning: { effort: "low" },
         store: false,
         text: { format: zodTextFormat(sourceDiscoverySchema, "research_sources") },
