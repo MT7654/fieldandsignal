@@ -18,10 +18,30 @@ export const projectInputSchema = z.object({
 });
 export const researchPlanSchema = z.object({
   decisionStatement: textValue, objectives: textList.pipe(z.array(z.string()).min(2)), hypotheses: textList,
-  secondaryWorkstreams: z.array(z.object({ title: textValue, evidenceExpected: textList })),
-  evidenceGaps: textList, primaryMethodology: textValue, targetRespondents: textValue,
+  secondaryWorkstreams: z.array(z.object({ title: textValue, evidenceExpected: textList, rationale: textValue.optional() })),
+  evidenceGaps: textList, primaryMethodology: textValue, primaryRationale: textValue.optional(), targetRespondents: textValue,
   sampleSizeRecommendation: textValue, timeline: textValue, estimatedOperationalCosts: textValue,
+  costBreakdown: z.object({
+    currency: textValue,
+    items: z.array(z.object({ category: textValue, description: textValue, amount: z.coerce.number().nonnegative(), basis: textValue })).min(1),
+    total: z.coerce.number().nonnegative(),
+    assumptions: textList,
+  }).optional(),
   deliverables: textList, limitations: textList,
+});
+
+export const planRevisionRequestSchema = z.object({
+  currentPlan: researchPlanSchema,
+  project: projectInputSchema.passthrough().optional(),
+  revisionRequest: z.object({
+    budgetPreference: z.enum(["maintain", "reduce", "cap"]),
+    budgetCap: z.string().max(80).optional(),
+    timingPreference: z.enum(["maintain", "faster", "specific_date"]),
+    targetDate: z.string().max(80).optional(),
+    businessPriorities: z.string().min(3).max(1500),
+    scopeTradeoffs: z.string().max(1500).optional(),
+    newContext: z.string().max(2000).optional(),
+  }),
 });
 export const surveySubmissionSchema = z.object({ token: z.string().min(10).max(128), consent: z.literal(true), answers: z.record(z.string(), z.unknown()) });
 export const interviewConsentSchema = z.object({ token: z.string().min(10).max(128), consent: z.literal(true), disclosureVersion: z.string() });
