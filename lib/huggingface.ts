@@ -4,7 +4,28 @@ import { env } from "./env";
 const completionSchema=z.object({choices:z.array(z.object({message:z.object({content:z.string()})})).min(1)});
 type Message={role:"system"|"user"|"assistant";content:string};
 
-export function extractJson(text:string){const fenced=text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];const candidate=fenced??text.slice(text.indexOf("{"),text.lastIndexOf("}")+1);return JSON.parse(candidate)}
+export function extractJson(text:string){
+  const fenced=text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+  const source=(fenced??text).trim();
+  const start=source.indexOf("{");
+  if(start<0)throw new SyntaxError("The response did not contain a JSON object.");
+  let depth=0,end=-1,inString=false,escaped=false;
+  for(let index=start;index<source.length;index++){
+    const character=source[index];
+    if(inString){if(escaped)escaped=false;else if(character==="\\")escaped=true;else if(character==='"')inString=false;continue}
+    if(character==='"'){inString=true;continue}
+    if(character==="{")depth++;
+    if(character==="}"&&--depth===0){end=index;break}
+  }
+  if(end<start)throw new SyntaxError("The JSON object was cut off before its closing brace.");
+  return JSON.parse(source.slice(start,end+1));
+}
+
+export function structuredRetryInstruction(error:unknown){
+  const detail=error instanceof Error?error.message:"unknown validation error";
+  const syntax=error instanceof SyntaxError;
+  return `Previous ${syntax?"JSON syntax":"schema validation"} error: ${detail}\n${syntax?"The response may have been truncated. Regenerate the complete object from the input; do not continue the previous response.":"Correct the reported field types."} Keep the JSON compact: use 2-4 concise items per list, no prose outside JSON, and no markdown.`;
+}
 
 export async function hfChat(messages:Message[],options?:{maxTokens?:number;temperature?:number}){
   if(!env.HF_TOKEN) throw new Error("Hugging Face inference is not configured");
@@ -14,9 +35,9 @@ export async function hfChat(messages:Message[],options?:{maxTokens?:number;temp
 }
 
 export async function hfStructured<T>(system:string,input:unknown,schema:ZodType<T>,schemaDescription:string){
-  const prompt=`Return only one valid JSON object. No markdown or commentary. JSON contract: ${schemaDescription}\nInput: ${JSON.stringify(input)}`;
+  const prompt=`Return only one complete, valid JSON object. No markdown or commentary. Keep values concise and use 2-4 items per list so the entire object fits in one response. JSON contract: ${schemaDescription}\nInput: ${JSON.stringify(input)}`;
   let lastError:unknown;
-  for(let attempt=0;attempt<2;attempt++){try{const correction=lastError instanceof Error?`\nPrevious validation error: ${lastError.message}`:"";return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:attempt===0?prompt:`${prompt}${correction}\nCorrect the reported field types and produce smaller, strictly valid JSON.`}],{maxTokens:1100,temperature:0.1})))}catch(error){lastError=error}}
+  for(let attempt=0;attempt<2;attempt++){try{const correction=attempt>0?`\n${structuredRetryInstruction(lastError)}`:"";return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:`${prompt}${correction}`}],{maxTokens:2800,temperature:0.1})))}catch(error){lastError=error}}
   throw new Error(`The model did not return valid structured output: ${lastError instanceof Error?lastError.message:"unknown error"}`);
 }
 
