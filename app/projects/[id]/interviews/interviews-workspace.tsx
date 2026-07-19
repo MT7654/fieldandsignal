@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AgentAvatar } from "@/components/agent-avatar";
+import { FieldworkActionStatus } from "@/components/fieldwork-action-status";
 import { PageShell } from "@/components/page-shell";
 import { Badge, Button, Progress } from "@/components/ui";
 import { BarChart3, Check, CheckCircle2, Copy, ExternalLink, Mic, Plus, ShieldCheck, Sparkles } from "lucide-react";
@@ -36,6 +37,7 @@ export function InterviewsWorkspace({ demo }: { demo: boolean }) {
   const completed = data.interviews.filter((interview) => interview.status === "complete" && !data.participants.find((participant) => participant.id === interview.participant_id)?.consent_source?.includes("practice")).length;
   return <PageShell eyebrow={demo ? "Sample engagement · Assisted interview" : "Primary research · Assisted voice interviews"} title="Bring Daniel into the room." description="Daniel speaks the approved questions, records one answer at a time, creates a reviewable transcript and adapts his next question to what the participant actually said." actions={guide ? <Button href="/projects/live/analysis"><BarChart3 size={17}/> Continue to analysis</Button> : undefined}>
     {error && <div className="notice form-error">{error}</div>}
+    {busy && <FieldworkActionStatus operation={busy === "approve" ? "approve" : "start"}/>}
     {!guide ? <section className="panel fieldwork-empty"><AgentAvatar slug="daniel-wong" size="lg"/><h2>The interview guide has not been generated yet.</h2><p>Open Survey and ask Aisha to generate the primary-research instruments first.</p></section> : <>
       <div className="grid-4"><div className="metric"><strong>{data.participants.length}</strong><span>Sessions created</span></div><div className="metric"><strong>{completed}</strong><span>Research interviews complete</span></div><div className="metric"><strong>{guide.questions.length}</strong><span>Guide topics</span></div><div className="metric"><strong>0</strong><span>Raw recordings retained</span><small>Transcript-first by default</small></div></div>
       <div className="dashboard-grid"><section className="panel instrument-panel"><div className="panel-header"><div className="agent-inline"><AgentAvatar slug="daniel-wong"/><div><Badge tone="coral">Daniel · AI-assisted interviewer</Badge><h2>{guide.title}</h2></div></div><Badge tone={approved ? "default" : "gold"}>{approved ? "Approved guide" : "Awaiting approval"}</Badge></div><p className="muted-copy instrument-introduction">{guide.introduction}</p><div className="guide-objectives">{guide.objectives.map((objective) => <div key={objective}><CheckCircle2 size={17}/><span>{objective}</span></div>)}</div>{guide.questions.map((item, index) => <article className="guide-question" key={item.question}><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{item.question}</h3><div className="guide-rationale"><strong>Why it matters</strong><p>{item.rationale}</p></div>{item.probes?.length ? <div className="probe-list"><strong>Possible probes</strong><div>{item.probes.map((probe) => <span key={probe}>{probe}</span>)}</div></div> : null}</div></article>)}</section>
