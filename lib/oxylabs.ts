@@ -4,9 +4,9 @@ import { ProxyAgent, fetch as undiciFetch } from "undici";
 import * as cheerio from "cheerio";
 import { env } from "./env";
 import type { EvidenceSource, ResearchCandidate } from "./secondary-research-types";
-import { cleanHtmlText, isSafePublicUrl, parseSearchRss } from "./research-web-utils";
+import { cleanHtmlText, countResearchTermHits, extractResearchTerms, isSafePublicUrl, parseSearchRss, scoreSearchCandidate } from "./research-web-utils";
 
-const SEARCH_LIMIT = 4;
+const SEARCH_LIMIT = 8;
 
 let dispatcher: ProxyAgent | undefined;
 function proxyAgent() {
@@ -40,15 +40,19 @@ async function proxiedText(url: string, timeoutMs = 18_000) {
   return text;
 }
 
-export async function searchWithOxylabs(query: string, workstream: string, expectedEvidence: string[]): Promise<ResearchCandidate[]> {
-  const url = `https://www.bing.com/search?format=rss&q=${encodeURIComponent(query)}`;
+export async function searchWithOxylabs(query: string, workstream: string, expectedEvidence: string[], geographyTerms: string[], topicTerms: string[]): Promise<ResearchCandidate[]> {
+  const url = `https://www.bing.com/search?format=rss&setlang=en-SG&cc=sg&q=${encodeURIComponent(query)}`;
   const xml = await proxiedText(url);
-  return parseSearchRss(xml).slice(0, SEARCH_LIMIT).map((item) => ({ ...item, workstream, expectedEvidence, status: "pending" }));
+  return parseSearchRss(xml)
+    .map((item) => ({ item, relevance: scoreSearchCandidate(item, geographyTerms, topicTerms) }))
+    .filter(({ relevance }) => relevance.relevant)
+    .sort((a, b) => b.relevance.score - a.relevance.score)
+    .slice(0, SEARCH_LIMIT)
+    .map(({ item, relevance }) => ({ ...item, workstream, expectedEvidence, geographyTerms, topicTerms, searchRelevanceScore: relevance.score, status: "pending" }));
 }
 
 function termsFor(candidate: ResearchCandidate) {
-  const words = `${candidate.workstream} ${candidate.expectedEvidence.join(" ")}`.toLowerCase().match(/[a-z0-9]{4,}/g) ?? [];
-  return [...new Set(words)].filter((word) => !["research", "evidence", "market", "expected", "analysis"].includes(word)).slice(0, 14);
+  return candidate.topicTerms?.length ? candidate.topicTerms : extractResearchTerms(`${candidate.workstream} ${candidate.expectedEvidence.join(" ")}`, 18);
 }
 
 function reliabilityFor(url: URL, publicationDate: string | undefined, excerpt: string) {
@@ -69,22 +73,31 @@ export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourc
   const $ = cheerio.load(html);
   const text = cleanHtmlText(html);
   if (text.length < 250) throw new Error("Source contained too little readable text");
+
   const terms = termsFor(candidate);
+  const lowerPage = text.toLowerCase();
+  const geographyHits = countResearchTermHits(lowerPage, candidate.geographyTerms ?? []);
+  const pageTopicHits = countResearchTermHits(lowerPage, terms);
+  if ((candidate.geographyTerms?.length ?? 0) > 0 && geographyHits === 0) throw new Error("Source did not match the geographic market");
+  if (pageTopicHits < Math.min(2, terms.length)) throw new Error("Source did not match the business decision");
+
   const sentences = text.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter((sentence) => sentence.length >= 55 && sentence.length <= 520);
   const ranked = sentences.map((sentence) => {
     const lower = sentence.toLowerCase();
-    const relevance = terms.reduce((sum, term) => sum + (lower.includes(term) ? 2 : 0), 0);
-    const data = /(?:%|\b\d[\d,.]*\s?(?:million|billion|thousand|people|customers|stores|outlets|years?)\b|[$£€]\s?\d)/i.test(sentence) ? 3 : 0;
-    return { sentence, score: relevance + data };
+    const topicHits = countResearchTermHits(lower, terms);
+    const geography = countResearchTermHits(lower, candidate.geographyTerms ?? []) > 0 ? 2 : 0;
+    const data = /(?:%|\b\d[\d,.]*\s?(?:million|billion|thousand|people|customers|stores|outlets|years?|months?|sq\s?ft)\b|(?:S\$|US\$|[$£€])\s?\d)/i.test(sentence) ? 3 : 0;
+    return { sentence, topicHits, score: topicHits * 2 + geography + data };
   }).sort((a, b) => b.score - a.score);
   const best = ranked[0];
-  if (!best || best.score < 2) throw new Error("Source was not sufficiently relevant to this workstream");
+  if (!best || best.topicHits < Math.min(2, terms.length)) throw new Error("Source contained no decision-relevant evidence excerpt");
+
   const excerpt = best.sentence.slice(0, 500);
   const title = ($("title").first().text().trim() || candidate.title).replace(/\s+/g, " ").slice(0, 220);
   const publicationDate = ["article:published_time", "datePublished", "date", "pubdate"].map((name) => $(`meta[name="${name}"],meta[property="${name}"]`).first().attr("content")).find(Boolean);
   const url = new URL(candidate.url);
   const reliability = reliabilityFor(url, publicationDate, excerpt);
-  const dataPoints = [...excerpt.matchAll(/(?:S\$|US\$|[$£€])?\s?\d[\d,.]*(?:\s?(?:%|million|billion|thousand|people|customers|stores|outlets|years?))?/gi)]
+  const dataPoints = [...excerpt.matchAll(/(?:S\$|US\$|[$£€])?\s?\d[\d,.]*(?:\s?(?:%|million|billion|thousand|people|customers|stores|outlets|years?|months?|sq\s?ft))?/gi)]
     .map((match) => match[0].trim()).filter((value) => value.length > 1).slice(0, 4);
   return {
     id: `S${String(sourceIndex).padStart(2, "0")}`,

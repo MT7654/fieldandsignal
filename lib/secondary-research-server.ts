@@ -4,28 +4,39 @@ import { hfStructured } from "./huggingface";
 import { inferenceConfigured } from "./env";
 import { secondarySynthesisSchema } from "./schemas";
 import { fetchEvidenceCandidate, searchWithOxylabs } from "./oxylabs";
+import { extractResearchTerms } from "./research-web-utils";
 import type { ResearchPlan } from "./research-plan";
-import type { EvidenceSource, ResearchCandidate, ResearchQuery, SecondarySynthesis, StoredSecondaryResearchState } from "./secondary-research-types";
+import { SECONDARY_RESEARCH_LIMITS, type EvidenceSource, type ResearchCandidate, type ResearchQuery, type SecondarySynthesis, type StoredSecondaryResearchState } from "./secondary-research-types";
 
-const MAX_QUERIES = 4;
-const MAX_FETCHES = 8;
-const MAX_SOURCES = 6;
+const RESEARCH_LIMITS = SECONDARY_RESEARCH_LIMITS;
 
 export function buildResearchQueries(plan: ResearchPlan, project: { industry?: string | null; geography?: string | null; business_question?: string | null }) {
-  const context = [project.geography, project.industry].filter(Boolean).join(" ");
-  const queries: ResearchQuery[] = plan.secondaryWorkstreams.slice(0, 3).map((workstream) => ({
-    query: `${context} ${workstream.title} ${workstream.evidenceExpected.slice(0, 2).join(" ")} official statistics report`.replace(/\s+/g, " ").trim().slice(0, 240),
-    workstream: workstream.title,
-    expectedEvidence: workstream.evidenceExpected,
-    status: "pending",
-  }));
-  if (queries.length < MAX_QUERIES && project.business_question) queries.push({
-    query: `${context} ${project.business_question} market data`.replace(/\s+/g, " ").trim().slice(0, 240),
+  const geographyTerms = extractResearchTerms(project.geography, 5);
+  const industryTerms = extractResearchTerms(project.industry, 6);
+  const decisionTerms = extractResearchTerms(project.business_question, 14).filter((term) => !geographyTerms.includes(term));
+  const geography = project.geography ? `"${project.geography}"` : "";
+  const queries: ResearchQuery[] = plan.secondaryWorkstreams.slice(0, 5).map((workstream) => {
+    const workstreamTerms = extractResearchTerms(`${workstream.title} ${workstream.evidenceExpected.join(" ")}`, 10);
+    const topicTerms = [...new Set([...industryTerms, ...decisionTerms, ...workstreamTerms])].slice(0, 18);
+    const searchTerms = [...new Set([...industryTerms.slice(0, 3), ...workstreamTerms.slice(0, 7), ...decisionTerms.slice(0, 3)])];
+    return {
+      query: `${geography} ${searchTerms.join(" ")} statistics benchmark`.replace(/\s+/g, " ").trim().slice(0, 220),
+      workstream: workstream.title,
+      expectedEvidence: workstream.evidenceExpected,
+      geographyTerms,
+      topicTerms,
+      status: "pending" as const,
+    };
+  });
+  if (queries.length < RESEARCH_LIMITS.queries && project.business_question) queries.push({
+    query: `${geography} ${[...industryTerms, ...decisionTerms].slice(0, 12).join(" ")} comparison`.replace(/\s+/g, " ").trim().slice(0, 220),
     workstream: "Decision context",
     expectedEvidence: [plan.decisionStatement],
+    geographyTerms,
+    topicTerms: [...new Set([...industryTerms, ...decisionTerms])].slice(0, 18),
     status: "pending",
   });
-  return queries.slice(0, MAX_QUERIES);
+  return queries.slice(0, RESEARCH_LIMITS.queries);
 }
 
 function dedupeCandidates(existing: ResearchCandidate[], incoming: ResearchCandidate[]) {
@@ -35,7 +46,7 @@ function dedupeCandidates(existing: ResearchCandidate[], incoming: ResearchCandi
     const key = canonicalUrl(candidate.url);
     if (!seen.has(key)) { seen.add(key); next.push(candidate); }
   }
-  return next.slice(0, 16);
+  return next.sort((a, b) => (b.searchRelevanceScore ?? 0) - (a.searchRelevanceScore ?? 0)).slice(0, 40);
 }
 
 function canonicalUrl(value: string) {
@@ -87,7 +98,7 @@ export async function runResearchStep(session: Awaited<ReturnType<typeof import(
       const query = state.queries[index];
       let found: ResearchCandidate[] = [];
       let status: ResearchQuery["status"] = "complete";
-      try { found = await searchWithOxylabs(query.query, query.workstream, query.expectedEvidence); }
+      try { found = await searchWithOxylabs(query.query, query.workstream, query.expectedEvidence, query.geographyTerms ?? [], query.topicTerms ?? []); }
       catch { status = "failed"; }
       const queries = state.queries.map((item, itemIndex) => itemIndex === index ? { ...item, status } : item);
       const candidates = dedupeCandidates(state.candidates, found);
@@ -96,7 +107,7 @@ export async function runResearchStep(session: Awaited<ReturnType<typeof import(
     } else state = { ...state, phase: "reviewing", currentActivity: "Opening candidate sources" };
   } else if (state.phase === "reviewing") {
     const index = state.candidates.findIndex((candidate) => candidate.status === "pending");
-    const stopReviewing = index < 0 || state.usage.pageFetches >= MAX_FETCHES || state.sources.length >= MAX_SOURCES;
+    const stopReviewing = index < 0 || state.usage.pageFetches >= RESEARCH_LIMITS.pageFetches || state.sources.length >= RESEARCH_LIMITS.sources;
     if (stopReviewing) state = { ...state, phase: "synthesizing", currentActivity: "Comparing retained evidence and remaining gaps" };
     else {
       const candidate = state.candidates[index];
@@ -107,7 +118,7 @@ export async function runResearchStep(session: Awaited<ReturnType<typeof import(
       const candidates = state.candidates.map((item, itemIndex) => itemIndex === index ? { ...item, status: accepted ? "accepted" as const : "rejected" as const, rejectionReason } : item);
       const sources = accepted ? [...state.sources, accepted] : state.sources;
       if (accepted) await db.from("sources").insert({ project_id: projectId, title: accepted.title, publisher: accepted.publisher, url: accepted.url, publication_date: normalizeDate(accepted.publicationDate), retrieved_at: accepted.retrievedAt, excerpt: accepted.excerpt, supported_claim: accepted.supportedClaim, reliability_note: `${accepted.reliability} (${accepted.reliabilityScore}/10): ${accepted.reliabilityNote}` });
-      const pending = candidates.some((item) => item.status === "pending") && state.usage.pageFetches + 1 < MAX_FETCHES && sources.length < MAX_SOURCES;
+      const pending = candidates.some((item) => item.status === "pending") && state.usage.pageFetches + 1 < RESEARCH_LIMITS.pageFetches && sources.length < RESEARCH_LIMITS.sources;
       state = { ...state, candidates, sources, phase: pending ? "reviewing" : "synthesizing", currentActivity: pending ? `Checking ${candidates.find((item) => item.status === "pending")?.title}` : "Comparing retained evidence and remaining gaps", usage: { ...state.usage, pageFetches: state.usage.pageFetches + 1, proxyRequests: state.usage.proxyRequests + 1 } };
     }
   } else if (state.phase === "synthesizing") {
