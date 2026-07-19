@@ -17,6 +17,7 @@ primary_model_provider: OpenAI
 primary_model_family: GPT-5.6
 database: Supabase PostgreSQL
 deployment: Vercel
+codex_session_id: 019f6626-14cb-7613-acb5-08572294e743
 ```
 
 ## One-sentence evaluation thesis

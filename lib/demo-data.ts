@@ -19,7 +19,7 @@ export const activities: Activity[] = [
   { agent: "sofia-tan", action: "Prepared an integrated view using retained sources and a labelled synthetic survey preview.", time: "Today, 10:42", status: "Complete", href: "/projects/northstar-cinemas/analysis" },
   { agent: "daniel-wong", action: "Opened a practice voice-interview room; practice content is excluded from evidence.", time: "Today, 09:18", status: "Complete", href: "/projects/northstar-cinemas/interviews" },
   { agent: "maya-chen", action: "Reviewed regional population, accessibility and cinema supply evidence.", time: "Yesterday, 16:05", status: "Complete", href: "/projects/northstar-cinemas/secondary-research" },
-  { agent: "aisha-rahman", action: "Drafted and published a 12-question consumer survey after approval.", time: "12 Jul, 14:20", status: "Complete", href: "/projects/northstar-cinemas/survey" },
+  { agent: "aisha-rahman", action: "Drafted and published a five-question consumer survey after approval.", time: "12 Jul, 14:20", status: "Complete", href: "/projects/northstar-cinemas/survey" },
   { agent: "john-lim", action: "Submitted the research plan for client approval.", time: "10 Jul, 11:34", status: "Complete", href: "/projects/northstar-cinemas/plan" },
 ];
 
@@ -30,13 +30,16 @@ export const sources: Source[] = [
   { id: "S04", title: "Cinema market desk scan", publisher: "Field & Signal demo dataset", date: "Jul 2026", claim: "Premium formats are more concentrated in central and destination locations.", note: "Seeded demo synthesis—not live research." },
   { id: "S05", title: "Retail catchment comparison", publisher: "Field & Signal demo dataset", date: "Jul 2026", claim: "Heartland sites show a larger family catchment within a 20-minute journey.", note: "Illustrative model using labelled demo inputs." },
   { id: "S06", title: "Competitor location inventory", publisher: "Field & Signal demo dataset", date: "Jul 2026", claim: "City-centre supply creates stronger head-to-head competition.", note: "Requires live validation before investment." },
+  { id: "S07", title: "Mall access and amenity comparison", publisher: "Field & Signal demo dataset", date: "Jul 2026", claim: "Transport access and adjacent dining options shape the attractiveness of both location types.", note: "Illustrative comparison; validate against shortlisted properties." },
+  { id: "S08", title: "Rental viability scenario", publisher: "Field & Signal demo dataset", date: "Jul 2026", claim: "Higher central occupancy costs require a larger revenue premium to preserve target margins.", note: "Illustrative scenario rather than a property quotation." },
 ];
 
 export const surveyQuestions: SurveyQuestion[] = [
   { id: "q1", type: "single", question: "How often do you visit a cinema?", options: ["Weekly", "Monthly", "Every 2–3 months", "Less often"], required: true },
   { id: "q2", type: "multiple", question: "What most influences your choice of cinema?", options: ["Travel time", "Ticket price", "Food and retail nearby", "Premium screens", "Family convenience"], required: true },
   { id: "q3", type: "rating", question: "How appealing is a cinema in a regional heartland mall?", options: ["1", "2", "3", "4", "5"], required: true },
-  { id: "q4", type: "text", question: "What would make you visit a new cinema more often?", required: false },
+  { id: "q4", type: "single", question: "Which location would you be more likely to visit repeatedly?", options: ["Heartland mall", "City-centre mall", "It depends on the occasion", "No preference"], required: true },
+  { id: "q5", type: "text", question: "What would make you visit a new cinema more often?", required: false },
 ];
 
 export const surveyResults = [
