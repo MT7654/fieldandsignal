@@ -4,10 +4,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { PageShell } from "@/components/page-shell";
 import { Badge, Button, Progress } from "@/components/ui";
-import { SECONDARY_RESEARCH_LIMITS, type SecondaryResearchState } from "@/lib/secondary-research-types";
+import { SECONDARY_RESEARCH_LIMITS, type EvidenceSource, type SecondaryResearchState } from "@/lib/secondary-research-types";
 import { AlertTriangle, ArrowUpRight, BookOpenCheck, Check, LoaderCircle, RefreshCw, Search, ShieldCheck } from "lucide-react";
 
 type ResearchResponse = { state?: SecondaryResearchState; progress?: number; error?: string };
+
+const reliabilityDefinitions: Record<EvidenceSource["reliability"], string> = {
+  High: "Official or institutional evidence with the strongest available provenance. Suitable to anchor a finding when the evidence itself supports the claim.",
+  Medium: "Credible published evidence with useful verification signals, but fewer primary-source or traceability signals than High. Best used with corroboration.",
+  Directional: "Relevant public evidence that provides context or a lead, but should not carry a decision-critical claim by itself.",
+};
 
 export function LiveSecondaryResearch() {
   const [state, setState] = useState<SecondaryResearchState>();
@@ -92,7 +98,8 @@ function ResearchResults({ state }: { state: SecondaryResearchState }) {
 
     <div className="research-dashboard">
       <section className="panel real-source-library"><div className="panel-header"><div className="maya-identity compact"><AgentAvatar slug="maya-chen"/><div><Badge>Live web search · open-source extraction</Badge><h2>Evidence source library</h2></div></div><Search size={18}/></div>
-        {state.sources.length === 0 ? <div className="empty-evidence"><Search/><h3>No source has passed review yet</h3><p>Maya retains only pages that match both the geographic market and the business decision.</p></div> : state.sources.map((source) => <article className="source-card real-source-card" key={source.id}><div className="source-id">{source.id}</div><div><div className="source-title-row"><h3>{source.title}</h3><a href={source.url} target="_blank" rel="noreferrer" aria-label={`Open ${source.title}`}><ArrowUpRight size={17}/></a></div><small>{source.publisher}{source.publicationDate ? ` · ${formatDate(source.publicationDate)}` : ""} · Retrieved {formatDate(source.retrievedAt)}</small><p><strong>Evidence:</strong> {source.excerpt}</p><p className="source-workstream"><strong>Workstream:</strong> {source.workstream}</p><p><strong>Reliability:</strong> {source.reliabilityNote}</p></div><Badge tone={source.reliability === "High" ? "default" : source.reliability === "Medium" ? "gold" : "coral"}>{source.reliability}</Badge></article>)}
+        <details className="reliability-guide"><summary>How source confidence is assessed</summary><div>{(["High", "Medium", "Directional"] as const).map((level) => <p key={level}><Badge className="reliability-badge" tone={level === "High" ? "default" : level === "Medium" ? "gold" : "coral"}>{level}</Badge><span>{reliabilityDefinitions[level]}</span></p>)}</div></details>
+        {state.sources.length === 0 ? <div className="empty-evidence"><Search/><h3>No source has passed review yet</h3><p>Maya retains only pages that match both the geographic market and the business decision.</p></div> : state.sources.map((source) => <article className="source-card real-source-card" key={source.id}><div className="source-id">{source.id}</div><div><div className="source-title-row"><h3>{source.title}</h3><a href={source.url} target="_blank" rel="noreferrer" aria-label={`Open ${source.title}`}><ArrowUpRight size={17}/></a></div><small>{source.publisher}{source.publicationDate ? ` · ${formatDate(source.publicationDate)}` : ""} · Retrieved {formatDate(source.retrievedAt)}</small><p><strong>Evidence:</strong> {source.excerpt}</p><p className="source-workstream"><strong>Workstream:</strong> {source.workstream}</p><p><strong>Reliability:</strong> {source.reliabilityNote}</p></div><Badge className="reliability-badge" title={reliabilityDefinitions[source.reliability]} ariaLabel={`${source.reliability} source confidence. ${reliabilityDefinitions[source.reliability]}`} tone={source.reliability === "High" ? "default" : source.reliability === "Medium" ? "gold" : "coral"}>{source.reliability}</Badge></article>)}
       </section>
 
       <aside className="research-sidebar">

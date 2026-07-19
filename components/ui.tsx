@@ -3,8 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "coral" | "gold" | "blue" }) {
-  return <span className={`badge badge-${tone}`}>{children}</span>;
+export function Badge({ children, tone = "default", className, title, ariaLabel }: { children: React.ReactNode; tone?: "default" | "coral" | "gold" | "blue"; className?: string; title?: string; ariaLabel?: string }) {
+  return <span className={cn("badge", `badge-${tone}`, className)} title={title} aria-label={ariaLabel}>{children}</span>;
 }
 export function Button({ href, children, variant = "primary", className }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" | "ghost"; className?: string }) {
   return <Link href={href} className={cn("button", `button-${variant}`, className)}>{children}<ArrowUpRight size={16} /></Link>;
