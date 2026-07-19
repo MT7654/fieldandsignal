@@ -3,6 +3,8 @@ import { formatGenerationElapsed, generationStageAt } from "@/components/plan-ge
 
 describe("plan generation status", () => {
   it("advances through honest activity stages as time passes", () => {
+    expect(generationStageAt("consult", 0).label).toContain("business question");
+    expect(generationStageAt("consult", 30).label).toContain("answerable consultation questions");
     expect(generationStageAt("create", 0).label).toContain("Reviewing");
     expect(generationStageAt("create", 40).label).toContain("Estimating");
     expect(generationStageAt("create", 95).label).toContain("Still working");

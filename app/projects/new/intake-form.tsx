@@ -97,7 +97,8 @@ export function IntakeForm({ initialMode = "primary_secondary" }: { initialMode?
             <Field label="Industry"><input name="industry" required placeholder="e.g. Retail" /></Field>
             <Field label="Geographic market"><input name="geography" required placeholder="e.g. Singapore" /></Field>
             <Field full label="Decision objective"><input name="objective" placeholder="Growth, market entry, positioning…" /></Field>
-            <button disabled={loading} className="button button-primary" type="submit">{loading ? "John is reviewing…" : "Continue to consultation →"}</button>
+            <button disabled={loading} className="button button-primary" type="submit">{loading ? "John is preparing your consultation…" : "Continue to consultation →"}</button>
+            {loading && <div className="field full"><PlanGenerationStatus mode="consult" /></div>}
           </form>
         ) : (
           <Consultation questions={questions} loading={loading} error={error} onComplete={createPlan} />
