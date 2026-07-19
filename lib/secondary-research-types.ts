@@ -1,6 +1,6 @@
 import type { ResearchPlan } from "./research-plan";
 
-export const SECONDARY_RESEARCH_LIMITS = { queries: 6, pageFetches: 18, sources: 10 } as const;
+export const SECONDARY_RESEARCH_LIMITS = { queries: 4, pageFetches: 18, sources: 10 } as const;
 
 export type ResearchQuery = {
   query: string;
@@ -20,6 +20,10 @@ export type ResearchCandidate = {
   geographyTerms?: string[];
   topicTerms?: string[];
   searchRelevanceScore?: number;
+  discoveryProvider?: "openai" | "oxylabs";
+  webEvidence?: string;
+  webPublisher?: string;
+  webPublicationDate?: string;
   status: "pending" | "accepted" | "rejected";
   rejectionReason?: string;
 };

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   OPENAI_API_KEY: z.string().min(1).optional(),
-  OPENAI_MODEL: z.string().default("gpt-5.6"),
+  OPENAI_MODEL: z.string().default("gpt-5.6-luna"),
   HF_TOKEN: z.string().startsWith("hf_").optional(),
   HF_MODEL: z.string().default("Qwen/Qwen3.6-35B-A3B:featherless-ai"),
   OXYLABS_USERNAME: z.string().min(1).optional(),
@@ -29,5 +29,5 @@ export const env = envSchema.parse({
 });
 export const inferenceConfigured = Boolean(env.HF_TOKEN || env.OPENAI_API_KEY);
 export const databaseConfigured = Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SECRET_KEY);
-export const secondaryResearchConfigured = Boolean(env.OXYLABS_USERNAME && env.OXYLABS_PASSWORD && env.OXYLABS_PROXY_URL && databaseConfigured);
+export const secondaryResearchConfigured = Boolean((env.OPENAI_API_KEY || (env.OXYLABS_USERNAME && env.OXYLABS_PASSWORD && env.OXYLABS_PROXY_URL)) && databaseConfigured);
 export const demoMode = !inferenceConfigured || !databaseConfigured;

@@ -16,12 +16,16 @@ function proxyAgent() {
   return dispatcher;
 }
 
-async function proxiedText(url: string, timeoutMs = 18_000) {
+function proxyConfigured() {
+  return Boolean(env.OXYLABS_PROXY_URL && env.OXYLABS_USERNAME && env.OXYLABS_PASSWORD);
+}
+
+async function fetchPublicText(url: string, timeoutMs: number, requestDispatcher?: ProxyAgent) {
   if (!isSafePublicUrl(url)) throw new Error("Unsafe source URL");
   let currentUrl = url;
   let response;
   for (let redirect = 0; redirect <= 3; redirect++) {
-    response = await undiciFetch(currentUrl, { dispatcher: proxyAgent(), redirect: "manual", signal: AbortSignal.timeout(timeoutMs), headers: { "user-agent": "FieldAndSignalResearch/1.0 (+https://fieldandsignal.vercel.app)" } });
+    response = await undiciFetch(currentUrl, { dispatcher: requestDispatcher, redirect: "manual", signal: AbortSignal.timeout(timeoutMs), headers: { "user-agent": "FieldAndSignalResearch/1.0 (+https://fieldandsignal.vercel.app)" } });
     if (response.status < 300 || response.status >= 400) break;
     const location = response.headers.get("location");
     if (!location) throw new Error("Source redirect was incomplete");
@@ -38,6 +42,14 @@ async function proxiedText(url: string, timeoutMs = 18_000) {
   const text = await response.text();
   if (text.length > 1_500_000) throw new Error("Source is too large");
   return text;
+}
+
+async function proxiedText(url: string, timeoutMs = 18_000) {
+  if (proxyConfigured()) {
+    try { return await fetchPublicText(url, timeoutMs, proxyAgent()); }
+    catch { /* Retry directly when a residential endpoint or target site refuses the proxy. */ }
+  }
+  return fetchPublicText(url, timeoutMs);
 }
 
 export async function searchWithOxylabs(query: string, workstream: string, expectedEvidence: string[], geographyTerms: string[], topicTerms: string[]): Promise<ResearchCandidate[]> {
@@ -68,7 +80,7 @@ function reliabilityFor(url: URL, publicationDate: string | undefined, excerpt: 
   return { score, reliability: reliability as EvidenceSource["reliability"], note: reasons.join("; ") };
 }
 
-export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourceIndex: number): Promise<EvidenceSource> {
+async function fetchScrapedEvidenceCandidate(candidate: ResearchCandidate, sourceIndex: number): Promise<EvidenceSource> {
   const html = await proxiedText(candidate.url);
   const $ = cheerio.load(html);
   const text = cleanHtmlText(html);
@@ -78,8 +90,9 @@ export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourc
   const lowerPage = text.toLowerCase();
   const geographyHits = countResearchTermHits(lowerPage, candidate.geographyTerms ?? []);
   const pageTopicHits = countResearchTermHits(lowerPage, terms);
+  const requiredTopicHits = candidate.discoveryProvider === "openai" ? Math.min(1, terms.length) : Math.min(2, terms.length);
   if ((candidate.geographyTerms?.length ?? 0) > 0 && geographyHits === 0) throw new Error("Source did not match the geographic market");
-  if (pageTopicHits < Math.min(2, terms.length)) throw new Error("Source did not match the business decision");
+  if (pageTopicHits < requiredTopicHits) throw new Error("Source did not match the business decision");
 
   const sentences = text.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter((sentence) => sentence.length >= 55 && sentence.length <= 520);
   const ranked = sentences.map((sentence) => {
@@ -90,7 +103,7 @@ export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourc
     return { sentence, topicHits, score: topicHits * 2 + geography + data };
   }).sort((a, b) => b.score - a.score);
   const best = ranked[0];
-  if (!best || best.topicHits < Math.min(2, terms.length)) throw new Error("Source contained no decision-relevant evidence excerpt");
+  if (!best || best.topicHits < requiredTopicHits) throw new Error("Source contained no decision-relevant evidence excerpt");
 
   const excerpt = best.sentence.slice(0, 500);
   const title = ($("title").first().text().trim() || candidate.title).replace(/\s+/g, " ").slice(0, 220);
@@ -114,4 +127,36 @@ export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourc
     workstream: candidate.workstream,
     dataPoints,
   };
+}
+
+function evidenceFromWebSearch(candidate: ResearchCandidate, sourceIndex: number): EvidenceSource {
+  if (!candidate.webEvidence) throw new Error("Source could not be inspected");
+  const url = new URL(candidate.url);
+  const excerpt = candidate.webEvidence.slice(0, 500);
+  const reliability = reliabilityFor(url, candidate.webPublicationDate, excerpt);
+  const dataPoints = [...excerpt.matchAll(/(?:S\$|US\$|[$£€])?\s?\d[\d,.]*(?:\s?(?:%|million|billion|thousand|people|customers|stores|outlets|years?|months?|sq\s?ft))?/gi)]
+    .map((match) => match[0].trim()).filter((value) => value.length > 1).slice(0, 4);
+  return {
+    id: `S${String(sourceIndex).padStart(2, "0")}`,
+    title: candidate.title,
+    publisher: candidate.webPublisher || url.hostname.replace(/^www\./, ""),
+    url: candidate.url,
+    publicationDate: candidate.webPublicationDate,
+    retrievedAt: new Date().toISOString(),
+    excerpt,
+    supportedClaim: excerpt,
+    reliability: reliability.reliability,
+    reliabilityScore: reliability.score,
+    reliabilityNote: `${reliability.note}; evidence located through OpenAI web search because the publisher page was not machine-readable`,
+    workstream: candidate.workstream,
+    dataPoints,
+  };
+}
+
+export async function fetchEvidenceCandidate(candidate: ResearchCandidate, sourceIndex: number): Promise<EvidenceSource> {
+  try { return await fetchScrapedEvidenceCandidate(candidate, sourceIndex); }
+  catch (error) {
+    if (candidate.discoveryProvider === "openai" && candidate.webEvidence) return evidenceFromWebSearch(candidate, sourceIndex);
+    throw error;
+  }
 }
