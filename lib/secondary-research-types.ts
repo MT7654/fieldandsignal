@@ -1,9 +1,13 @@
 import type { ResearchPlan } from "./research-plan";
 
+export const SECONDARY_RESEARCH_LIMITS = { queries: 6, pageFetches: 18, sources: 10 } as const;
+
 export type ResearchQuery = {
   query: string;
   workstream: string;
   expectedEvidence: string[];
+  geographyTerms?: string[];
+  topicTerms?: string[];
   status: "pending" | "complete" | "failed";
 };
 
@@ -13,6 +17,9 @@ export type ResearchCandidate = {
   snippet: string;
   workstream: string;
   expectedEvidence: string[];
+  geographyTerms?: string[];
+  topicTerms?: string[];
+  searchRelevanceScore?: number;
   status: "pending" | "accepted" | "rejected";
   rejectionReason?: string;
 };

@@ -1,5 +1,35 @@
 import * as cheerio from "cheerio";
 
+const RESEARCH_STOP_WORDS = new Set([
+  "about", "acceptable", "against", "along", "analysis", "based", "business", "could", "data", "decision", "evidence", "expected", "first", "from", "have", "into", "large", "likely", "market", "most", "next", "official", "open", "report", "research", "should", "their", "there", "these", "this", "through", "versus", "what", "where", "which", "with", "would", "years",
+]);
+
+export function extractResearchTerms(value: string | null | undefined, limit = 16) {
+  const words = (value ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]{3,}/g) ?? [];
+  return [...new Set(words.filter((word) => !RESEARCH_STOP_WORDS.has(word) && !/^\d+$/.test(word)))].slice(0, limit);
+}
+
+export function countResearchTermHits(value: string, terms: string[]) {
+  const tokens = new Set(value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]{3,}/g) ?? []);
+  return terms.filter((term) => tokens.has(term)).length;
+}
+
+export function scoreSearchCandidate(input: { title: string; snippet: string; url: string }, geographyTerms: string[], topicTerms: string[]) {
+  const title = input.title.toLowerCase();
+  const snippet = input.snippet.toLowerCase();
+  const combined = `${title} ${snippet}`;
+  const geographyHits = countResearchTermHits(combined, geographyTerms);
+  const titleTopicHits = countResearchTermHits(title, topicTerms);
+  const snippetTopicHits = countResearchTermHits(snippet, topicTerms);
+  const topicHits = countResearchTermHits(combined, topicTerms);
+  let host = "";
+  try { host = new URL(input.url).hostname.toLowerCase(); } catch { /* invalid URLs are removed separately */ }
+  const authorityBonus = /(?:^|\.)(?:gov\.sg|edu\.sg|org\.sg)$/.test(host) || /(?:^|\.)(?:statista\.com|jll\.com|cbre\.com|savills\.com)$/.test(host) ? 4 : 0;
+  const genericPenalty = /wikipedia\.org$/.test(host) || /\b(?:travel guide|tourism|tourist attraction|universal studios)\b/.test(combined) ? 10 : 0;
+  const relevant = (geographyTerms.length === 0 || geographyHits > 0) && topicHits >= Math.min(2, topicTerms.length) && genericPenalty === 0;
+  return { relevant, score: geographyHits * 5 + titleTopicHits * 4 + snippetTopicHits * 2 + authorityBonus - genericPenalty, geographyHits, topicHits };
+}
+
 function decodeEntities(value: string) {
   return value
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanHtmlText, isSafePublicUrl, parseSearchRss } from "@/lib/research-web-utils";
+import { cleanHtmlText, extractResearchTerms, isSafePublicUrl, parseSearchRss, scoreSearchCandidate } from "@/lib/research-web-utils";
 
 describe("open-source research scraper utilities", () => {
   it("parses real search candidates from RSS and excludes unsafe URLs", () => {
@@ -16,5 +16,19 @@ describe("open-source research scraper utilities", () => {
 
   it("removes scripts and navigation from extracted page text", () => {
     expect(cleanHtmlText("<html><nav>Menu</nav><main><h1>Market report</h1><p>Demand rose 12%.</p></main><script>steal()</script></html>")).toBe("Market report Demand rose 12%.");
+  });
+
+  it("extracts decision-specific terms instead of generic research language", () => {
+    expect(extractResearchTerms("Should a specialty coffee outlet compare CBD rent with heartland demand?"))
+      .toEqual(["specialty", "coffee", "outlet", "compare", "cbd", "rent", "heartland", "demand"]);
+  });
+
+  it("retains locally relevant business evidence and rejects generic location pages", () => {
+    const relevant = scoreSearchCandidate({ title: "Singapore CBD retail rents and F&B outlook", snippet: "Coffee and restaurant operators compare central rents with suburban footfall.", url: "https://www.ura.gov.sg/retail-report" }, ["singapore"], ["specialty", "coffee", "outlet", "cbd", "rent", "heartland"]);
+    const generic = scoreSearchCandidate({ title: "Singapur - Wikipedia", snippet: "A BMW can cost $260,000 as vehicle taxes climb.", url: "https://es.wikipedia.org/wiki/Singapur" }, ["singapore"], ["specialty", "coffee", "outlet", "cbd", "rent", "heartland"]);
+    const tourism = scoreSearchCandidate({ title: "Singapore travel guide", snippet: "Visit Universal Studios and the city's tourist attractions.", url: "https://example.com/singapore-guide" }, ["singapore"], ["specialty", "coffee", "outlet", "cbd", "rent", "heartland"]);
+    expect(relevant.relevant).toBe(true);
+    expect(generic.relevant).toBe(false);
+    expect(tourism.relevant).toBe(false);
   });
 });
