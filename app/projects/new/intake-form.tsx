@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { Badge } from "@/components/ui";
+import { PlanGenerationStatus } from "@/components/plan-generation-status";
 
 type ProjectInput = {
   businessQuestion: string;
@@ -134,7 +135,8 @@ function Consultation({ questions, loading, error, onComplete }: { questions: st
           <textarea required rows={2} value={answers[index] ?? ""} onChange={(event) => setAnswers((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.value : value))} placeholder="Your answer" />
         </div>
       ))}
-      <button disabled={loading || answers.some((answer) => !answer.trim())} className="button button-primary" style={{ marginTop: 24 }} onClick={() => onComplete(answers)}>{loading ? "Generating structured plan…" : "Generate research plan →"}</button>
+      <button disabled={loading || answers.some((answer) => !answer.trim())} className="button button-primary" style={{ marginTop: 24 }} onClick={() => onComplete(answers)}>{loading ? "John is building your plan…" : "Generate research plan →"}</button>
+      {loading && <PlanGenerationStatus mode="create" />}
     </div>
   );
 }
