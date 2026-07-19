@@ -13,7 +13,8 @@ export async function POST(request: Request) {
     const name = input.name?.trim() || (input.practice ? "Practice participant" : "Interview participant");
     const result = await db.from("interview_participants").insert({ project_id: projectId, name, status: "invited", consent_source: input.practice ? "practice session" : null }).select("id,public_token,name,status").single();
     if (result.error || !result.data) throw result.error ?? new Error("Could not create interview session");
-    return NextResponse.json({ participant: result.data, interviewUrl: publicUrl(`/interview/${result.data.public_token}`, request.url) });
+    const interviewPath = `/interview/${result.data.public_token}`;
+    return NextResponse.json({ participant: result.data, interviewPath, interviewUrl: publicUrl(interviewPath, request) });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not create interview" }, { status: 400 });
   }

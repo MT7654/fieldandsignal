@@ -1,6 +1,7 @@
 import "server-only";
 
 import { resolveResearchSession } from "./research-session";
+export { publicUrl } from "./public-url";
 
 export async function loadFieldworkContext() {
   const session = await resolveResearchSession();
@@ -49,9 +50,4 @@ export async function loadFieldworkContext() {
     interviews,
     messages,
   };
-}
-
-export function publicUrl(path: string, requestUrl?: string) {
-  const origin = process.env.NEXT_PUBLIC_APP_URL || (requestUrl ? new URL(requestUrl).origin : "http://localhost:3000");
-  return `${origin}${path}`;
 }
