@@ -55,6 +55,12 @@ function canonicalUrl(value: string) {
   catch { return value; }
 }
 
+function nextCandidateIndex(state: StoredSecondaryResearchState) {
+  const coveredWorkstreams = new Set(state.sources.map((source) => source.workstream));
+  const uncoveredIndex = state.candidates.findIndex((candidate) => candidate.status === "pending" && !coveredWorkstreams.has(candidate.workstream));
+  return uncoveredIndex >= 0 ? uncoveredIndex : state.candidates.findIndex((candidate) => candidate.status === "pending");
+}
+
 function deterministicSynthesis(sources: EvidenceSource[], gaps: string[]): SecondarySynthesis {
   const strongest = [...sources].sort((a, b) => b.reliabilityScore - a.reliabilityScore);
   return {
@@ -109,7 +115,7 @@ export async function runResearchStep(session: Awaited<ReturnType<typeof import(
       state = { ...state, queries, candidates, phase: moreQueries ? "searching" : "reviewing", currentActivity: moreQueries ? `Searching for ${queries.find((item) => item.status === "pending")?.workstream}` : `Opening ${candidates.length} candidate sources`, usage: { ...state.usage, searchRequests: state.usage.searchRequests + 1, proxyRequests: state.usage.proxyRequests + (usedProxy ? 1 : 0) } };
     } else state = { ...state, phase: "reviewing", currentActivity: "Opening candidate sources" };
   } else if (state.phase === "reviewing") {
-    const index = state.candidates.findIndex((candidate) => candidate.status === "pending");
+    const index = nextCandidateIndex(state);
     const stopReviewing = index < 0 || state.usage.pageFetches >= RESEARCH_LIMITS.pageFetches || state.sources.length >= RESEARCH_LIMITS.sources;
     if (stopReviewing) state = { ...state, phase: "synthesizing", currentActivity: "Comparing retained evidence and remaining gaps" };
     else {
