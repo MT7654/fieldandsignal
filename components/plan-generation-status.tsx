@@ -4,9 +4,17 @@ import { useEffect, useState } from "react";
 import { AgentAvatar } from "./agent-avatar";
 import { Check, LoaderCircle } from "lucide-react";
 
-type Mode = "create" | "revise";
+type Mode = "consult" | "create" | "revise";
 
 const stages: Record<Mode, { at: number; label: string }[]> = {
+  consult: [
+    { at: 0, label: "Reviewing your business question and context" },
+    { at: 6, label: "Identifying the decision and known constraints" },
+    { at: 14, label: "Separating client inputs from research tasks" },
+    { at: 24, label: "Drafting clear, answerable consultation questions" },
+    { at: 40, label: "Checking each question for relevance and clarity" },
+    { at: 65, label: "Still working — complex business questions can take a little longer" },
+  ],
   create: [
     { at: 0, label: "Reviewing your answers and decision context" },
     { at: 8, label: "Framing the research objectives and evidence gaps" },
@@ -50,7 +58,7 @@ export function PlanGenerationStatus({ mode }: { mode: Mode }) {
     <aside className="generation-status" aria-live="polite" aria-busy="true">
       <div className="generation-status-head">
         <AgentAvatar slug="john-lim" size="sm" />
-        <div><span>John is actively working</span><strong>{mode === "create" ? "Building your research plan" : "Revising your research plan"}</strong></div>
+        <div><span>John is actively working</span><strong>{mode === "consult" ? "Preparing your consultation" : mode === "create" ? "Building your research plan" : "Revising your research plan"}</strong></div>
         <LoaderCircle className="generation-spinner" aria-hidden="true" />
       </div>
       <div className="generation-track" aria-hidden="true"><span /></div>
@@ -62,7 +70,7 @@ export function PlanGenerationStatus({ mode }: { mode: Mode }) {
       <ol className="generation-checkpoints" aria-label="Plan generation progress">
         {stages[mode].slice(0, 5).map((stage, index) => <li className={index < activeIndex ? "complete" : index === activeIndex ? "active" : ""} key={stage.label}>{index < activeIndex ? <Check size={12} /> : <span />}</li>)}
       </ol>
-      <small>Please keep this page open. Generation usually takes under two minutes, but a complex plan can take up to three.</small>
+      <small>Please keep this page open. This usually takes under two minutes, but a complex request can take up to three.</small>
     </aside>
   );
 }
