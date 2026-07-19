@@ -23,7 +23,9 @@ Product ideation began in a separate ChatGPT conversation, while the application
 
 The repository is public at [github.com/MT7654/fieldandsignal](https://github.com/MT7654/fieldandsignal) and is distributed under the [MIT licence](./LICENSE).
 
-> **Submission owner action:** paste the `/feedback` Codex Session ID from the core implementation task into the Devpost submission. Do not invent or substitute a ChatGPT conversation ID.
+**Codex Session ID:** `019f6626-14cb-7613-acb5-08572294e743`
+
+This is the Codex task in which the core application was built and iterated. Use this exact ID in the Devpost `/feedback` field; it is distinct from the earlier ChatGPT ideation-conversation ID.
 
 ## Why this project is different
 
