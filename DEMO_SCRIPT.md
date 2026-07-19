@@ -1,29 +1,85 @@
-# Field & Signal — sub-three-minute demo
+# Field & Signal — sub-three-minute Build Week demo
 
-## 0:00–0:30 — The proposition
+Target duration: **2:50–2:58**. Keep the browser zoom around 80–90% on a laptop and preload the sample and live-engagement tabs.
 
-Open `/`. “Field & Signal is market research that goes out and asks the market. Instead of a generic chatbot, the client meets six visible AI specialists who can review existing evidence and—with approval—conduct original surveys and interviews.” Point out the team, AI Agent labels and Northstar demo cards.
+## 0:00–0:25 — The proposition
 
-## 0:30–0:55 — Start with the decision
+Open `/`.
 
-Open `/projects/new`. Show the decision-first intake, research-mode choice and John Lim’s structured clarification step. “The user buys a decision-ready outcome. Nothing is fielded or spent without approval.”
+> “Field & Signal is market research that goes out and asks the market. A client brings us a business decision, and six disclosed AI specialists plan the engagement, investigate published evidence, conduct primary research, analyze it, and deliver a decision-ready brief.”
 
-## 0:55–1:20 — Command centre and plan
+Point to the human-like specialist portraits and visible AI-agent language.
 
-Open the sample command centre. Show active agent, engagement progress, labelled demo metrics and authentic action trace. Open the plan and highlight hypotheses, workstreams, methodology, cost and limitations. Show the approval gate.
+## 0:25–0:50 — Start with a decision
 
-## 1:20–1:50 — Evidence and fieldwork
+Open `/projects/new`, choose **Primary + secondary**, and continue to the intake.
 
-Open Evidence. Show source-to-claim support and reliability notes; state that demo citations require live validation. Open Survey, then the public survey URL. Show purpose, consent, four question types and completion. Open Interviews and the public interview. Show AI disclosure, transcription consent, one-question-at-a-time interaction, skip and stop.
+> “The client does not need to prescribe a methodology. John asks short questions a business owner can answer, and ‘I don’t know’ becomes a research task rather than an error.”
 
-## 1:50–2:25 — Analysis with traceability
+Show the Singapore specialty-coffee decision already entered. Submit the consultation and briefly show John’s honest elapsed progress state.
 
-Open Analysis. “Sofia combines three evidence streams but labels observed evidence, respondent statements and strategic inference separately.” Point to confidence and evidence links, then contradictions and limitations.
+## 0:50–1:15 — Approval-gated planning
 
-## 2:25–2:55 — Decision-ready brief
+Open the generated Plan.
 
-Open Brief. Read the illustrative recommendation: prioritise a major heartland regional centre, subject to rental and catchment validation. Trace the convenience claim to survey Q2 and the family insight to interviews I02 and I04. Show the conditions that would change the recommendation and print-to-PDF layout.
+> “John explains the decision, objectives, hypotheses, why each workstream is necessary, expected evidence, methodology, limitations, timing, and a line-item cost estimate.”
 
-## Close
+Point to **Approve plan** and **Request revision**.
 
-“Codex accelerated the product architecture, UI, agent boundaries, Zod contracts, database/RLS design, consent flows and tests. Qwen 3.6 runs bounded planning, interview, and synthesis roles through Hugging Face’s server-side router. Demo data is always labelled; real evidence remains real.”
+> “The client can constrain budget, timing, or priorities, but the template does not invite them to dictate a finding. No research begins without approval.”
+
+## 1:15–1:42 — Real secondary research
+
+Open Evidence.
+
+> “Maya uses GPT‑5.6 with OpenAI web search, filters unsafe or irrelevant URLs, inspects candidate pages, and retains a compact source library. Each record carries its publisher, date, excerpt, workstream, reliability explanation, and supported claim.”
+
+Open one source link and the confidence explainer.
+
+> “Maya’s synthesis can only use these retained excerpts; it cannot invent citations.”
+
+## 1:42–2:12 — Primary research that actually works
+
+Open Survey.
+
+> “Aisha generated five decision-specific questions and explains why each belongs. Publishing creates a hosted, mobile-friendly link inside the application.”
+
+Open the public survey link or QR code and show the consent action.
+
+Open Interviews.
+
+> “Daniel uses an approved five-question guide. Every participant sees the AI disclosure and transcription consent. Daniel asks one question at a time, adapts a follow-up to the answer, stores a reviewable transcript, and respects skip or stop.”
+
+If time permits, play one spoken Daniel question or submit one short answer.
+
+## 2:12–2:38 — Integrated analysis
+
+Open Analysis.
+
+> “Sofia calculates survey bases in code, then integrates real sources, live responses, and completed research interviews. Observation, interpretation, implication, confidence, evidence IDs, and limitations remain separate.”
+
+Point to an evidence-linked finding and the contradictions/gaps panel.
+
+> “If there are no live survey responses, the synthetic preview is explicitly labelled. Once a genuine response exists, the analysis uses actual submissions instead.”
+
+## 2:38–2:55 — Decision-ready brief
+
+Open Brief.
+
+> “Marcus automatically turns Sofia’s persisted analysis into a versioned recommendation with rationale, risks, change conditions, next actions, methodology, and evidence links. The result is a brief the client can interrogate—not an unsupported chatbot answer.”
+
+Show **Print / PDF**.
+
+## Closing line
+
+> “I made the product, methodology, safety, and design decisions; Codex accelerated the architecture, implementation, debugging, responsive polish, tests, Git workflow, and deployments. GPT‑5.6 powers the bounded research specialists. Field & Signal proves that AI research can go beyond web search and conduct primary fieldwork.”
+
+## Recording checklist
+
+- Keep the final public video under three minutes.
+- Use voice-over audio and explicitly say both **Codex** and **GPT‑5.6**.
+- Show at least one real hosted fieldwork link.
+- Show evidence traceability and a limitation, not only polished output.
+- Avoid waiting for a live model call on camera; record the progress state, then cut to the completed output.
+- Confirm that all sample or synthetic material visible in the recording is labelled.
+- Add the `/feedback` Codex Session ID to the Devpost submission.
