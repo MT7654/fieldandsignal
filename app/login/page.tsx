@@ -1,2 +1,0 @@
-import { LoginForm } from "./login-form";
-export default function Login(){return <main className="app-page"><div className="panel" style={{maxWidth:520,margin:"70px auto",padding:40}}><span className="badge">Secure client workspace</span><h1 style={{font:"500 52px/1 var(--font-serif)",margin:"20px 0"}}>Sign in to your research firm.</h1><p style={{color:"var(--muted)",lineHeight:1.65}}>Receive a secure magic link by email. Supabase manages the session; Field & Signal never handles a password.</p><LoginForm/></div></main>}

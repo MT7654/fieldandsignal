@@ -10,9 +10,7 @@ const envSchema = z.object({
   OXYLABS_PASSWORD: z.string().min(1).optional(),
   OXYLABS_PROXY_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().startsWith("sb_publishable_").optional(),
   SUPABASE_SECRET_KEY: z.string().startsWith("sb_secret_").optional(),
-  SUPABASE_JWKS_URL: z.string().url().optional(),
 });
 
 export const env = envSchema.parse({
@@ -25,9 +23,7 @@ export const env = envSchema.parse({
   OXYLABS_PASSWORD: process.env.OXYLABS_PASSWORD,
   OXYLABS_PROXY_URL: process.env.OXYLABS_PROXY_URL,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
-  SUPABASE_JWKS_URL: process.env.SUPABASE_JWKS_URL,
 });
 export const inferenceConfigured = Boolean(env.HF_TOKEN || env.OPENAI_API_KEY);
 export const databaseConfigured = Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SECRET_KEY);

@@ -22,7 +22,7 @@ The seeded Northstar Cinemas engagement demonstrates the whole journey. All synt
 
 - **Next.js App Router + strict TypeScript** for pages, public participant routes and server endpoints.
 - **Hugging Face Inference Providers** through its OpenAI-compatible router, pinned to `Qwen/Qwen3.6-35B-A3B:featherless-ai`. Calls remain server-side and structured outputs are validated with Zod.
-- **Supabase** for authentication, PostgreSQL, storage and realtime-ready activity. The migration applies owner-based RLS and exposes no participant data through anonymous table policies.
+- **Supabase** for PostgreSQL persistence and realtime-ready activity. The migration applies owner-based RLS and exposes no participant data through anonymous table policies.
 - **Local demo adapter** in `lib/demo-data.ts` keeps the hackathon path reliable without credentials.
 - **Role-specific orchestration** in `lib/agents.ts` gives every specialist bounded instructions and handoffs. A reliable sequential workflow is intentional for this MVP.
 
@@ -54,9 +54,7 @@ Open `http://localhost:3000`. With no credentials, the app automatically uses cl
 - `HF_TOKEN`: server-only Hugging Face token with Inference Providers access.
 - `HF_MODEL`: defaults to `Qwen/Qwen3.6-35B-A3B:featherless-ai`.
 - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: browser-safe modern publishable key.
 - `SUPABASE_SECRET_KEY`: modern server-only key used by validated public-token endpoints; bypasses RLS and must never reach the browser.
-- `SUPABASE_JWKS_URL`: public endpoint used to verify asymmetric user-session JWTs when authentication is enabled.
 - `NEXT_PUBLIC_APP_URL`: deployed origin.
 
 Environment values are validated in `lib/env.ts`. Never expose the Hugging Face token, OpenAI key, or Supabase service-role key to the browser.
@@ -66,9 +64,9 @@ Environment values are validated in `lib/env.ts`. Never expose the Hugging Face 
 1. Create a Supabase project.
 2. On free-plan or IPv4-only development machines, open the Supabase SQL Editor and run `supabase/migrations/001_initial_schema.sql`.
 3. Then run `supabase/seed.sql` in the SQL Editor to create the six agents and the functional Northstar public survey/interview records.
-4. Create an authenticated profile, then run `npx tsx scripts/seed-demo.ts <owner-uuid>` if you want the labelled Northstar project in the database.
+4. Run `npx tsx scripts/seed-demo.ts <owner-uuid>` only if you want an additional owner-linked Northstar seed record.
 
-The app uses `@supabase/ssr` helpers in `utils/supabase`: a browser client, cookie-aware server client, and middleware session refresh. `/login` provides magic-link authentication and `/auth/callback` exchanges the authorization code for a cookie session. The server-only admin client uses the modern `sb_secret_...` key for validated public survey and interview writes.
+For the hackathon demonstration, engagement access uses a scoped research-session cookie rather than a client sign-in flow. The server-only Supabase client uses the modern `sb_secret_...` key for validated survey, interview and research-workspace operations.
 
 The direct database hostname on many free Supabase projects is IPv6-only. If your development environment has no IPv6 route, the client libraries and Data API still work normally; only CLI migration deployment is affected. Use the Dashboard SQL Editor for the one-time schema setup.
 
