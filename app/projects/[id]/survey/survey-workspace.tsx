@@ -9,7 +9,7 @@ import { SurveyExportTools } from "@/components/survey-export-tools";
 import { BarChart3, Check, Copy, ExternalLink, Linkedin, Mail, MessageCircle, RefreshCw, Share2, Sparkles } from "lucide-react";
 
 type Question = { id: string; type: "single" | "multiple" | "rating" | "text"; question: string; options_json?: string[]; required: boolean; position: number };
-type Snapshot = { project: { business_question: string }; instrument?: { survey?: { estimatedMinutes?: number }; questionRationales?: { position: number; rationale: string }[] }; instrumentStatus: string; survey?: { id: string; title: string; introduction: string; status: string; shareUrl: string }; questions: Question[]; responses: { id: string }[]; answers: { response_id: string; question_id: string; answer_json: unknown }[] };
+type Snapshot = { project: { business_question: string }; instrument?: { survey?: { estimatedMinutes?: number }; questionRationales?: { position: number; rationale: string }[] }; instrumentStatus: string; survey?: { id: string; title: string; introduction: string; status: string; shareUrl: string; sharePath?: string }; questions: Question[]; responses: { id: string }[]; answers: { response_id: string; question_id: string; answer_json: unknown }[] };
 
 const demoSnapshot: Snapshot = {
   project: { business_question: "Should Northstar Cinemas open its next venue in a heartland mall or the city centre?" },
@@ -33,6 +33,16 @@ async function readApiResponse(response: Response, fallback: string) {
   }
 }
 
+function browserHostedUrl(url: string, path?: string) {
+  if (typeof window === "undefined") return url;
+  try {
+    const publicPath = path || new URL(url).pathname;
+    return new URL(publicPath, window.location.origin).toString();
+  } catch {
+    return url;
+  }
+}
+
 export function SurveyWorkspace({ demo }: { demo: boolean }) {
   const [data, setData] = useState<Snapshot | null>(demo ? demoSnapshot : null);
   const [busy, setBusy] = useState<"generate" | "publish" | null>(null);
@@ -52,7 +62,7 @@ export function SurveyWorkspace({ demo }: { demo: boolean }) {
   if (!data) return <PageShell eyebrow="Primary research" title="Preparing the survey workspace." description="Aisha is loading the approved plan and available fieldwork."><section className="panel research-loading"><AgentAvatar slug="aisha-rahman" size="lg"/><h2>Connecting the research instruments</h2><Progress value={28}/></section></PageShell>;
   const liveCount = data.responses.length;
   const synthetic = liveCount === 0;
-  const shareUrl = data.survey?.shareUrl ?? "";
+  const shareUrl = data.survey ? browserHostedUrl(data.survey.shareUrl, data.survey.sharePath) : "";
   const surveyTitle = data.survey?.title ?? "Field & Signal study";
   const shareText = `Please take part in our short research survey: ${surveyTitle}`;
   async function copy() { await navigator.clipboard.writeText(shareUrl); setCopied(true); setTimeout(() => setCopied(false), 1800); }
