@@ -35,6 +35,7 @@ export default function PlanPage() {
   const [plan, setPlan] = useState<ResearchPlan>(demoPlan);
   const [revisionCount, setRevisionCount] = useState(0);
   const [starting, setStarting] = useState(false);
+  const [approvalError, setApprovalError] = useState("");
 
   useEffect(() => {
     if (!live) return;
@@ -45,10 +46,24 @@ export default function PlanPage() {
     setRevisionCount(Number(localStorage.getItem("field-signal-live-revision-count") ?? "0") || 0);
   }, [live]);
 
-  function approvePlan() {
+  async function approvePlan() {
     setStarting(true);
-    localStorage.setItem("field-signal-live-plan-approved", new Date().toISOString());
-    router.push(`/projects/${id}/secondary-research`);
+    setApprovalError("");
+    try {
+      if (live) {
+        const storedProject = localStorage.getItem("field-signal-live-project");
+        if (!storedProject) throw new Error("The live engagement context is missing. Please create the engagement again.");
+        const response = await fetch("/api/projects/approve", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ project: JSON.parse(storedProject), plan }) });
+        const result = await response.json() as { error?: string };
+        if (!response.ok) throw new Error(result.error ?? "The engagement could not be started.");
+      }
+      localStorage.setItem("field-signal-live-plan-approved", new Date().toISOString());
+      localStorage.removeItem("field-signal-secondary-research");
+      router.push(`/projects/${id}/secondary-research`);
+    } catch (error) {
+      setApprovalError(error instanceof Error ? error.message : "The engagement could not be started.");
+      setStarting(false);
+    }
   }
 
   const costs = useMemo(() => getCostBreakdown(plan), [plan]);
@@ -70,6 +85,7 @@ export default function PlanPage() {
           <button className="button button-primary" disabled={starting} onClick={approvePlan}>{starting ? "Starting research…" : "Approve & start research →"}</button>
         </div>
       </section>
+      {approvalError && <div className="notice" role="alert">{approvalError}</div>}
 
       {live && revisionCount >= 2 && (
         <aside className="plan-nudge">

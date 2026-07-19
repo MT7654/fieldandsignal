@@ -34,10 +34,10 @@ export async function hfChat(messages:Message[],options?:{maxTokens?:number;temp
   return completionSchema.parse(await response.json()).choices[0].message.content;
 }
 
-export async function hfStructured<T>(system:string,input:unknown,schema:ZodType<T>,schemaDescription:string){
+export async function hfStructured<T>(system:string,input:unknown,schema:ZodType<T>,schemaDescription:string,options?:{maxTokens?:number;attempts?:number}){
   const prompt=`Return only one complete, valid JSON object. No markdown or commentary. Keep values concise and use 2-4 items per list so the entire object fits in one response. JSON contract: ${schemaDescription}\nInput: ${JSON.stringify(input)}`;
   let lastError:unknown;
-  for(let attempt=0;attempt<2;attempt++){try{const correction=attempt>0?`\n${structuredRetryInstruction(lastError)}`:"";return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:`${prompt}${correction}`}],{maxTokens:2800,temperature:0.1})))}catch(error){lastError=error}}
+  for(let attempt=0;attempt<(options?.attempts??2);attempt++){try{const correction=attempt>0?`\n${structuredRetryInstruction(lastError)}`:"";return schema.parse(extractJson(await hfChat([{role:"system",content:system},{role:"user",content:`${prompt}${correction}`}],{maxTokens:options?.maxTokens??2800,temperature:0.1})))}catch(error){lastError=error}}
   throw new Error(`The model did not return valid structured output: ${lastError instanceof Error?lastError.message:"unknown error"}`);
 }
 
