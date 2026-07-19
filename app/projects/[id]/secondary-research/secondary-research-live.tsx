@@ -5,7 +5,7 @@ import { AgentAvatar } from "@/components/agent-avatar";
 import { PageShell } from "@/components/page-shell";
 import { Badge, Button, Progress } from "@/components/ui";
 import { SECONDARY_RESEARCH_LIMITS, type SecondaryResearchState } from "@/lib/secondary-research-types";
-import { AlertTriangle, ArrowUpRight, BookOpenCheck, Check, Database, LoaderCircle, RefreshCw, Search, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, BookOpenCheck, Check, LoaderCircle, RefreshCw, Search, ShieldCheck } from "lucide-react";
 
 type ResearchResponse = { state?: SecondaryResearchState; progress?: number; error?: string };
 
@@ -86,12 +86,9 @@ function MayaResearchProgress({ state, progress, running }: { state?: SecondaryR
 function ResearchResults({ state }: { state: SecondaryResearchState }) {
   const rejected = state.candidates.filter((candidate) => candidate.status === "rejected").length;
   const highReliability = state.sources.filter((source) => source.reliability === "High").length;
-  const dataPoints = state.sources.flatMap((source) => source.dataPoints.map((value) => ({ value, sourceId: source.id, workstream: source.workstream }))).slice(0, 8);
   const coverage = useMemo(() => state.plan.secondaryWorkstreams.map((workstream) => ({ title: workstream.title, sources: state.sources.filter((source) => source.workstream === workstream.title) })), [state]);
   return <>
     <div className="grid-4 research-metrics"><div className="metric"><strong>{state.sources.length}</strong><span>Relevant sources retained</span><small>{state.usage.pageFetches} pages inspected</small></div><div className="metric"><strong>{highReliability}</strong><span>High-reliability sources</span></div><div className="metric"><strong>{rejected}</strong><span>Candidates rejected</span><small>Failed or insufficiently relevant</small></div><div className="metric"><strong>{state.plan.evidenceGaps.length}</strong><span>Original evidence gaps</span></div></div>
-
-    {dataPoints.length > 0 && <section className="data-point-section"><div className="panel-header"><div><Badge>Extracted from retained pages</Badge><h2>Data points in view</h2></div><Database size={20}/></div><div className="data-point-grid">{dataPoints.map((point, index) => <article key={`${point.sourceId}-${point.value}-${index}`}><strong>{point.value}</strong><span>{point.workstream}</span><small>{point.sourceId}</small></article>)}</div></section>}
 
     <div className="research-dashboard">
       <section className="panel real-source-library"><div className="panel-header"><div className="maya-identity compact"><AgentAvatar slug="maya-chen"/><div><Badge>Live web search · open-source extraction</Badge><h2>Evidence source library</h2></div></div><Search size={18}/></div>

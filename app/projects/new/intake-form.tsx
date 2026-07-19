@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { Badge } from "@/components/ui";
@@ -28,7 +28,14 @@ export function IntakeForm({ initialMode = "primary_secondary" }: { initialMode?
   const [questions, setQuestions] = useState<string[]>(fallbackQuestions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const progressRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) return;
+    const frame = window.requestAnimationFrame(() => progressRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [loading, step]);
 
   async function start(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -98,7 +105,7 @@ export function IntakeForm({ initialMode = "primary_secondary" }: { initialMode?
             <Field label="Geographic market"><input name="geography" required placeholder="e.g. Singapore" /></Field>
             <Field full label="Decision objective"><input name="objective" placeholder="Growth, market entry, positioning…" /></Field>
             <button disabled={loading} className="button button-primary" type="submit">{loading ? "John is preparing your consultation…" : "Continue to consultation →"}</button>
-            {loading && <div className="field full"><PlanGenerationStatus mode="consult" /></div>}
+            {loading && <div className="field full" ref={progressRef}><PlanGenerationStatus mode="consult" /></div>}
           </form>
         ) : (
           <Consultation questions={questions} loading={loading} error={error} onComplete={createPlan} />
@@ -124,6 +131,12 @@ function Field({ label, children, full = false }: { label: string; children: Rea
 
 function Consultation({ questions, loading, error, onComplete }: { questions: string[]; loading: boolean; error: string; onComplete: (answers: string[]) => void }) {
   const [answers, setAnswers] = useState(() => questions.map(() => ""));
+  const consultationProgressRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!loading) return;
+    const frame = window.requestAnimationFrame(() => consultationProgressRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [loading]);
   return (
     <div>
       <Badge>Step 3 · Live AI consultation</Badge>
@@ -137,7 +150,7 @@ function Consultation({ questions, loading, error, onComplete }: { questions: st
         </div>
       ))}
       <button disabled={loading || answers.some((answer) => !answer.trim())} className="button button-primary" style={{ marginTop: 24 }} onClick={() => onComplete(answers)}>{loading ? "John is building your plan…" : "Generate research plan →"}</button>
-      {loading && <PlanGenerationStatus mode="create" />}
+      {loading && <div ref={consultationProgressRef}><PlanGenerationStatus mode="create" /></div>}
     </div>
   );
 }

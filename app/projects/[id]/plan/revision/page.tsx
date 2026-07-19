@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { PageShell } from "@/components/page-shell";
@@ -22,6 +22,7 @@ export default function PlanRevisionPage() {
   const [timingPreference, setTimingPreference] = useState<TimingPreference>("maintain");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedPlan = localStorage.getItem("field-signal-live-plan");
@@ -30,6 +31,12 @@ export default function PlanRevisionPage() {
     if (storedProject) try { setProject(JSON.parse(storedProject)); } catch { /* project context is optional */ }
     setRevisionCount(Number(localStorage.getItem("field-signal-live-revision-count") ?? "0") || 0);
   }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    const frame = window.requestAnimationFrame(() => progressRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [loading]);
 
   async function submitRevision(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -85,7 +92,7 @@ export default function PlanRevisionPage() {
 
           {error && <div className="notice" role="alert">{error}</div>}
           <div className="revision-submit"><button className="button button-primary" disabled={loading} type="submit">{loading ? "John is revising your plan…" : "Generate revised plan →"}</button><small>You can review, revise again or approve the replacement plan.</small></div>
-          {loading && <PlanGenerationStatus mode="revise" />}
+          {loading && <div ref={progressRef}><PlanGenerationStatus mode="revise" /></div>}
         </form>
 
         <aside className="revision-sidebar"><section className="panel"><AgentAvatar slug="john-lim" size="lg" /><Badge>John Lim · AI Research Director</Badge><h2>Business constraints in. Methodological judgement retained.</h2><p>Your priorities can change the budget, pace and depth. John remains responsible for choosing defensible methods and making any quality trade-offs visible.</p></section><section className="revision-guardrail"><ShieldCheck size={22} /><div><strong>Why the form is structured this way</strong><p>It steers revision toward information only you can provide: commercial limits, deadlines, decision priorities and changed context. You do not need to redesign the methodology.</p></div></section></aside>
