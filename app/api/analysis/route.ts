@@ -28,7 +28,16 @@ export async function GET() {
       context.db.from("research_findings").select("*").eq("project_id", context.projectId),
     ]);
     const practiceParticipantIds = new Set(context.participants.filter((participant) => String(participant.consent_source ?? "").includes("practice session")).map((participant) => participant.id));
-    return NextResponse.json({ status: task?.status ?? "not_started", progress: task?.progress ?? 0, analysis: task?.output_json ?? null, findings: findings ?? [], evidence: { survey: aggregateSurvey(context), completedInterviews: context.interviews.filter((i) => i.status === "complete" && !practiceParticipantIds.has(i.participant_id)).length, secondarySources: context.state.sources?.length ?? 0 } });
+    const survey = aggregateSurvey(context);
+    const completedInterviews = context.interviews.filter((i) => i.status === "complete" && !practiceParticipantIds.has(i.participant_id)).length;
+    const secondarySources = context.state.sources?.length ?? 0;
+    const previous = task?.output_json as { liveResponseCount?: number; completedInterviews?: number; secondarySourceCount?: number } | null;
+    const hasNewEvidence = Boolean(previous && (
+      survey.liveResponseCount !== (previous.liveResponseCount ?? 0) ||
+      completedInterviews !== (previous.completedInterviews ?? 0) ||
+      secondarySources !== (previous.secondarySourceCount ?? 0)
+    ));
+    return NextResponse.json({ status: task?.status ?? "not_started", progress: task?.progress ?? 0, analysis: task?.output_json ?? null, findings: findings ?? [], hasNewEvidence, evidence: { survey, completedInterviews, secondarySources } });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Could not load analysis" }, { status: 401 }); }
 }
 
