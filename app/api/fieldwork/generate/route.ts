@@ -2,22 +2,34 @@ import { NextResponse } from "next/server";
 import { agentDefinitions } from "@/lib/agents";
 import { loadFieldworkContext } from "@/lib/fieldwork";
 import { structuredInference } from "@/lib/inference";
-import { generatedInstrumentSchema } from "@/lib/schemas";
-export const maxDuration = 60;
+import { generatedInterviewGuideSchema, generatedSurveySchema } from "@/lib/schemas";
+export const maxDuration = 120;
 
 export async function POST() {
   try {
     const context = await loadFieldworkContext();
     const { db, projectId, project, plan } = context;
     if (context.survey?.status === "published" || context.responses.length > 0) return NextResponse.json({ error: "A published survey with fieldwork cannot be regenerated. Create a new instrument version in a future engagement instead." }, { status: 409 });
-    const generated = await structuredInference(
-      `${agentDefinitions.methodologist.system} Create a respondent-friendly survey and a semi-structured interview guide. Questions must be answerable by ordinary target respondents, neutral, concise, non-duplicative, and directly useful to the approved decision. Avoid unnecessary personal data. Rating questions must use exactly five labelled options. Provide a client-facing rationale for every question.`,
-      { project, approvedPlan: plan },
-      generatedInstrumentSchema,
-      "primary_research_instruments",
-      "{survey:{title:string,introduction:string,estimatedMinutes:number,questions:[{type:'single'|'multiple'|'rating'|'text',question:string,options:string[],required:boolean,rationale:string}]},interviewGuide:{title:string,introduction:string,objectives:string[],questions:[{question:string,rationale:string,probes:string[]}]}}",
-      { maxTokens: 4200, attempts: 3 },
-    );
+    const commonInput = { project, approvedPlan: plan };
+    const [survey, interviewGuide] = await Promise.all([
+      structuredInference(
+        `${agentDefinitions.methodologist.system} Create a respondent-friendly survey. Questions must be answerable by ordinary target respondents, neutral, concise, non-duplicative, and directly useful to the approved decision. Avoid unnecessary personal data. Rating questions must use exactly five labelled options. Provide a client-facing rationale for every question.`,
+        commonInput,
+        generatedSurveySchema,
+        "primary_research_survey",
+        "{title:string,introduction:string,estimatedMinutes:number,questions:[{type:'single'|'multiple'|'rating'|'text',question:string,options:string[],required:boolean,rationale:string}]}",
+        { maxTokens: 2400, attempts: 2 },
+      ),
+      structuredInference(
+        `${agentDefinitions.methodologist.system} Create a practical semi-structured interview guide for the client to use with Daniel Wong, the AI interviewer. Each question must be conversational, neutral, answerable by ordinary target respondents, and directly useful to the approved decision. Give concise probes and a client-facing rationale for every question.`,
+        commonInput,
+        generatedInterviewGuideSchema,
+        "primary_research_interview_guide",
+        "{title:string,introduction:string,objectives:string[],questions:[{question:string,rationale:string,probes:string[]}]}",
+        { maxTokens: 2200, attempts: 2 },
+      ),
+    ]);
+    const generated = { survey, interviewGuide };
 
     let surveyId = context.survey?.id as string | undefined;
     if (surveyId) {

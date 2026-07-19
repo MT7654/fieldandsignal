@@ -20,14 +20,27 @@ const demoSnapshot: Snapshot = {
   responses: [], answers: [],
 };
 
+async function readApiResponse(response: Response, fallback: string) {
+  const body = await response.text();
+  if (!body) {
+    if (!response.ok) throw new Error(fallback);
+    return {} as Record<string, unknown>;
+  }
+  try {
+    return JSON.parse(body) as Record<string, unknown>;
+  } catch {
+    throw new Error(response.ok ? "The workspace received an unreadable server response. Please retry." : fallback);
+  }
+}
+
 export function SurveyWorkspace({ demo }: { demo: boolean }) {
   const [data, setData] = useState<Snapshot | null>(demo ? demoSnapshot : null);
   const [busy, setBusy] = useState<"generate" | "publish" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const load = useCallback(async () => { if (demo) return; const response = await fetch("/api/fieldwork/status", { cache: "no-store" }); const result = await response.json(); if (!response.ok) throw new Error(result.error); setData(result); }, [demo]);
+  const load = useCallback(async () => { if (demo) return; const response = await fetch("/api/fieldwork/status", { cache: "no-store" }); const result = await readApiResponse(response, "The survey workspace could not be loaded. Please refresh and try again."); if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "The survey workspace could not be loaded."); setData(result as unknown as Snapshot); }, [demo]);
   useEffect(() => { load().catch((e) => setError(e.message)); }, [load]);
-  async function act(kind: "generate" | "publish") { setBusy(kind); setError(""); try { const response = await fetch(`/api/fieldwork/${kind}`, { method: "POST" }); const result = await response.json(); if (!response.ok) throw new Error(result.error); await load(); } catch (e) { setError(e instanceof Error ? e.message : "Action failed"); } finally { setBusy(null); } }
+  async function act(kind: "generate" | "publish") { setBusy(kind); setError(""); try { const response = await fetch(`/api/fieldwork/${kind}`, { method: "POST" }); const fallback = kind === "generate" ? "Aisha's generation was interrupted before the instruments were saved. Please retry; no draft was published." : "The survey could not be published. Please retry."; const result = await readApiResponse(response, fallback); if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : fallback); await load(); } catch (e) { setError(e instanceof Error ? e.message : "Action failed"); } finally { setBusy(null); } }
   const results = useMemo(() => {
     if (!data) return [];
     return data.questions.map((question) => {
