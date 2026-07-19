@@ -1,0 +1,20 @@
+import { describe, expect, it } from "vitest";
+import { cleanHtmlText, isSafePublicUrl, parseSearchRss } from "@/lib/research-web-utils";
+
+describe("open-source research scraper utilities", () => {
+  it("parses real search candidates from RSS and excludes unsafe URLs", () => {
+    const xml = `<?xml version="1.0"?><rss><channel><item><title>Official &amp; current</title><link>https://data.gov.sg/report</link><description><![CDATA[<b>Population data</b> for 2025.]]></description></item><item><title>Private</title><link>http://127.0.0.1/admin</link><description>Do not fetch</description></item></channel></rss>`;
+    expect(parseSearchRss(xml)).toEqual([{ title: "Official & current", url: "https://data.gov.sg/report", snippet: "Population data for 2025." }]);
+  });
+
+  it("blocks local and private network targets", () => {
+    expect(isSafePublicUrl("https://example.com/report")).toBe(true);
+    expect(isSafePublicUrl("http://localhost:3000/admin")).toBe(false);
+    expect(isSafePublicUrl("http://192.168.1.2/secret")).toBe(false);
+    expect(isSafePublicUrl("file:///etc/passwd")).toBe(false);
+  });
+
+  it("removes scripts and navigation from extracted page text", () => {
+    expect(cleanHtmlText("<html><nav>Menu</nav><main><h1>Market report</h1><p>Demand rose 12%.</p></main><script>steal()</script></html>")).toBe("Market report Demand rose 12%.");
+  });
+});

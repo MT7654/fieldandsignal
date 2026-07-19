@@ -43,6 +43,14 @@ export const planRevisionRequestSchema = z.object({
     newContext: z.string().max(2000).optional(),
   }),
 });
+
+export const secondarySynthesisSchema = z.object({
+  emergingView: textValue,
+  agreements: textList,
+  contradictions: textList,
+  remainingGaps: textList,
+  claims: z.array(z.object({ statement: textValue, sourceIds: textList })).max(5),
+});
 export const surveySubmissionSchema = z.object({ token: z.string().min(10).max(128), consent: z.literal(true), answers: z.record(z.string(), z.unknown()) });
 export const interviewConsentSchema = z.object({ token: z.string().min(10).max(128), consent: z.literal(true), disclosureVersion: z.string() });
 export const evidenceLinkSchema = z.object({ claimId: z.string(), evidenceType: z.enum(["source","survey_result","transcript_excerpt"]), evidenceId: z.string(), interpretation: z.string().optional() });
