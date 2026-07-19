@@ -56,8 +56,7 @@ export const interviewConsentSchema = z.object({ token: z.string().min(10).max(1
 export const evidenceLinkSchema = z.object({ claimId: z.string(), evidenceType: z.enum(["source","survey_result","transcript_excerpt"]), evidenceId: z.string(), interpretation: z.string().optional() });
 export const briefSchema = z.object({ executiveRecommendation: z.string(), rationale: z.array(z.string()), risks: z.array(z.string()), changeConditions: z.array(z.string()), nextActions: z.array(z.string()), evidenceLinks: z.array(evidenceLinkSchema) });
 
-export const generatedInstrumentSchema = z.object({
-  survey: z.object({
+export const generatedSurveySchema = z.object({
     title: textValue,
     introduction: textValue,
     estimatedMinutes: z.coerce.number().int().min(2).max(15),
@@ -68,13 +67,18 @@ export const generatedInstrumentSchema = z.object({
       required: z.boolean().default(false),
       rationale: textValue,
     })).min(6).max(14),
-  }),
-  interviewGuide: z.object({
+  });
+
+export const generatedInterviewGuideSchema = z.object({
     title: textValue,
     introduction: textValue,
     objectives: textList.pipe(z.array(z.string()).min(2).max(8)),
     questions: z.array(z.object({ question: textValue, rationale: textValue, probes: textList.optional().default([]) })).min(5).max(10),
-  }),
+  });
+
+export const generatedInstrumentSchema = z.object({
+  survey: generatedSurveySchema,
+  interviewGuide: generatedInterviewGuideSchema,
 });
 
 export const analysisOutputSchema = z.object({
