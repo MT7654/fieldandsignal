@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { PageShell } from "@/components/page-shell";
 import { Badge, Button } from "@/components/ui";
+import { PlanGenerationStatus } from "@/components/plan-generation-status";
 import type { ResearchPlan } from "@/lib/research-plan";
 import { Lightbulb, ShieldCheck } from "lucide-react";
 
@@ -83,7 +84,8 @@ export default function PlanRevisionPage() {
           <section><span className="revision-step">03 · Business priorities</span><h2>What must the revised plan help you decide?</h2><Field label="Essential outcomes"><textarea name="businessPriorities" required minLength={3} rows={4} placeholder="e.g. Prioritise confidence in the CBD versus heartland location decision. We can accept less detail on brand positioning." /></Field><Field label="Lower-priority areas or acceptable trade-offs (optional)"><textarea name="scopeTradeoffs" rows={3} placeholder="e.g. Reduce interviews before reducing the survey; paid competitor reports are optional." /></Field><Field label="New context John should know (optional)"><textarea name="newContext" rows={3} placeholder="e.g. The decision date moved, a location dropped out, or finance set a new cap." /></Field></section>
 
           {error && <div className="notice" role="alert">{error}</div>}
-          <div className="revision-submit"><button className="button button-primary" disabled={loading} type="submit">{loading ? "John is revising the plan…" : "Generate revised plan →"}</button><small>You can review, revise again or approve the replacement plan.</small></div>
+          <div className="revision-submit"><button className="button button-primary" disabled={loading} type="submit">{loading ? "John is revising your plan…" : "Generate revised plan →"}</button><small>You can review, revise again or approve the replacement plan.</small></div>
+          {loading && <PlanGenerationStatus mode="revise" />}
         </form>
 
         <aside className="revision-sidebar"><section className="panel"><AgentAvatar slug="john-lim" size="lg" /><Badge>John Lim · AI Research Director</Badge><h2>Business constraints in. Methodological judgement retained.</h2><p>Your priorities can change the budget, pace and depth. John remains responsible for choosing defensible methods and making any quality trade-offs visible.</p></section><section className="revision-guardrail"><ShieldCheck size={22} /><div><strong>Why the form is structured this way</strong><p>It steers revision toward information only you can provide: commercial limits, deadlines, decision priorities and changed context. You do not need to redesign the methodology.</p></div></section></aside>
