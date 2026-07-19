@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { briefSchema, evidenceLinkSchema, interviewConsentSchema, planRevisionRequestSchema, projectInputSchema, researchPlanSchema, surveySubmissionSchema } from "@/lib/schemas";
+import { briefSchema, evidenceLinkSchema, generatedInterviewGuideSchema, generatedSurveySchema, interviewConsentSchema, planRevisionRequestSchema, projectInputSchema, researchPlanSchema, surveySubmissionSchema } from "@/lib/schemas";
 
 describe("critical research workflow contracts",()=>{
   it("validates project creation",()=>expect(projectInputSchema.parse({businessQuestion:"Which market should we enter next?",businessDescription:"A regional service business considering expansion.",industry:"Services",geography:"Singapore",researchMode:"primary_secondary"})).toBeTruthy());
@@ -12,4 +12,5 @@ describe("critical research workflow contracts",()=>{
   it("requires interview consent",()=>expect(interviewConsentSchema.parse({token:"northstar-jamie",consent:true,disclosureVersion:"v1"})).toBeTruthy());
   it("links every claim to typed evidence",()=>expect(evidenceLinkSchema.parse({claimId:"C1",evidenceType:"survey_result",evidenceId:"Q2"})).toBeTruthy());
   it("validates final brief generation",()=>expect(briefSchema.parse({executiveRecommendation:"Choose A",rationale:["Evidence"],risks:["Cost"],changeConditions:["If B costs less"],nextActions:["Validate"],evidenceLinks:[{claimId:"C1",evidenceType:"source",evidenceId:"S01"}]})).toBeTruthy());
+  it("keeps demo instruments to five questions when the model exceeds item limits",()=>{const survey=generatedSurveySchema.parse({title:"Choice study",introduction:"Tell us what matters.",estimatedMinutes:5,questions:Array.from({length:16},(_,index)=>({type:"text",question:`Survey question ${index + 1}`,required:false,rationale:"Supports the decision."}))});const guide=generatedInterviewGuideSchema.parse({title:"Interview guide",introduction:"A guided conversation.",objectives:Array.from({length:10},(_,index)=>`Objective ${index + 1}`),questions:Array.from({length:12},(_,index)=>({question:`Interview question ${index + 1}`,rationale:"Explores the decision.",probes:["Why?"]}))});expect(survey.questions).toHaveLength(5);expect(guide.objectives).toHaveLength(8);expect(guide.questions).toHaveLength(5)});
 });

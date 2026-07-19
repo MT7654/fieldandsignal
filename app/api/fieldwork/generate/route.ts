@@ -13,7 +13,7 @@ export async function POST() {
     const commonInput = { project, approvedPlan: plan };
     const [survey, interviewGuide] = await Promise.all([
       structuredInference(
-        `${agentDefinitions.methodologist.system} Create a respondent-friendly survey. Questions must be answerable by ordinary target respondents, neutral, concise, non-duplicative, and directly useful to the approved decision. Avoid unnecessary personal data. Rating questions must use exactly five labelled options. Provide a client-facing rationale for every question.`,
+        `${agentDefinitions.methodologist.system} Create a respondent-friendly survey with exactly 5 questions. Questions must be answerable by ordinary target respondents, neutral, concise, non-duplicative, and directly useful to the approved decision. Avoid unnecessary personal data. Rating questions must use exactly five labelled options. Provide a client-facing rationale for every question. Never return more than 5 questions.`,
         commonInput,
         generatedSurveySchema,
         "primary_research_survey",
@@ -21,7 +21,7 @@ export async function POST() {
         { maxTokens: 2400, attempts: 2 },
       ),
       structuredInference(
-        `${agentDefinitions.methodologist.system} Create a practical semi-structured interview guide for the client to use with Daniel Wong, the AI interviewer. Each question must be conversational, neutral, answerable by ordinary target respondents, and directly useful to the approved decision. Give concise probes and a client-facing rationale for every question.`,
+        `${agentDefinitions.methodologist.system} Create a practical semi-structured interview guide with exactly 5 main questions and 2 to 5 objectives for the client to use with Daniel Wong, the AI interviewer. Each question must be conversational, neutral, answerable by ordinary target respondents, and directly useful to the approved decision. Use concise probes for depth rather than adding main questions, and provide a client-facing rationale for every question. Never return more than 5 main questions or 5 objectives.`,
         commonInput,
         generatedInterviewGuideSchema,
         "primary_research_interview_guide",

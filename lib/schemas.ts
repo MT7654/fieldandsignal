@@ -66,14 +66,14 @@ export const generatedSurveySchema = z.object({
       options: z.array(textValue).optional().default([]),
       required: z.boolean().default(false),
       rationale: textValue,
-    })).min(6).max(14),
+    })).min(5).transform((questions) => questions.slice(0, 5)),
   });
 
 export const generatedInterviewGuideSchema = z.object({
     title: textValue,
     introduction: textValue,
-    objectives: textList.pipe(z.array(z.string()).min(2).max(8)),
-    questions: z.array(z.object({ question: textValue, rationale: textValue, probes: textList.optional().default([]) })).min(5).max(10),
+    objectives: textList.pipe(z.array(z.string()).min(2)).transform((objectives) => objectives.slice(0, 8)),
+    questions: z.array(z.object({ question: textValue, rationale: textValue, probes: textList.optional().default([]) })).min(5).transform((questions) => questions.slice(0, 5)),
   });
 
 export const generatedInstrumentSchema = z.object({
