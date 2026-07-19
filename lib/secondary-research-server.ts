@@ -1,9 +1,10 @@
 import "server-only";
 
-import { hfStructured } from "./huggingface";
+import { structuredInference } from "./inference";
 import { inferenceConfigured } from "./env";
 import { secondarySynthesisSchema } from "./schemas";
-import { fetchEvidenceCandidate, searchWithOxylabs } from "./oxylabs";
+import { fetchEvidenceCandidate } from "./oxylabs";
+import { searchPublishedSources } from "./openai-web-search";
 import { extractResearchTerms } from "./research-web-utils";
 import type { ResearchPlan } from "./research-plan";
 import { SECONDARY_RESEARCH_LIMITS, type EvidenceSource, type ResearchCandidate, type ResearchQuery, type SecondarySynthesis, type StoredSecondaryResearchState } from "./secondary-research-types";
@@ -74,10 +75,11 @@ async function synthesize(state: StoredSecondaryResearchState) {
   const estimatedInputTokens = Math.ceil(JSON.stringify(compactInput).length / 4);
   if (!inferenceConfigured || state.sources.length < 2) return { synthesis: deterministicSynthesis(state.sources, state.plan.evidenceGaps), llmCalls: 0, estimatedInputTokens: 0 };
   try {
-    const synthesis = await hfStructured(
+    const synthesis = await structuredInference(
       "You are Maya Chen, an evidence-disciplined secondary research analyst. Synthesize only the supplied source excerpts. Every claim must cite supplied source IDs. Do not invent figures, sources or URLs. Preserve uncertainty and unresolved evidence gaps.",
       compactInput,
       secondarySynthesisSchema,
+      "secondary_research_synthesis",
       "{emergingView:string,agreements:string[],contradictions:string[],remainingGaps:string[],claims:{statement:string,sourceIds:string[]}[]}",
       { maxTokens: 700, attempts: 1 },
     ) as SecondarySynthesis;
@@ -98,12 +100,13 @@ export async function runResearchStep(session: Awaited<ReturnType<typeof import(
       const query = state.queries[index];
       let found: ResearchCandidate[] = [];
       let status: ResearchQuery["status"] = "complete";
-      try { found = await searchWithOxylabs(query.query, query.workstream, query.expectedEvidence, query.geographyTerms ?? [], query.topicTerms ?? []); }
+      let usedProxy = false;
+      try { const result = await searchPublishedSources(query.query, query.workstream, query.expectedEvidence, query.geographyTerms ?? [], query.topicTerms ?? []); found = result.candidates; usedProxy = result.provider === "oxylabs"; }
       catch { status = "failed"; }
       const queries = state.queries.map((item, itemIndex) => itemIndex === index ? { ...item, status } : item);
       const candidates = dedupeCandidates(state.candidates, found);
       const moreQueries = queries.some((item) => item.status === "pending");
-      state = { ...state, queries, candidates, phase: moreQueries ? "searching" : "reviewing", currentActivity: moreQueries ? `Searching for ${queries.find((item) => item.status === "pending")?.workstream}` : `Opening ${candidates.length} candidate sources`, usage: { ...state.usage, searchRequests: state.usage.searchRequests + 1, proxyRequests: state.usage.proxyRequests + 1 } };
+      state = { ...state, queries, candidates, phase: moreQueries ? "searching" : "reviewing", currentActivity: moreQueries ? `Searching for ${queries.find((item) => item.status === "pending")?.workstream}` : `Opening ${candidates.length} candidate sources`, usage: { ...state.usage, searchRequests: state.usage.searchRequests + 1, proxyRequests: state.usage.proxyRequests + (usedProxy ? 1 : 0) } };
     } else state = { ...state, phase: "reviewing", currentActivity: "Opening candidate sources" };
   } else if (state.phase === "reviewing") {
     const index = state.candidates.findIndex((candidate) => candidate.status === "pending");
